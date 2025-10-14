@@ -12,11 +12,6 @@ export interface GetAccountOutput {
   createdAt: string;
 }
 
-/**
- * Query: Get account by ID
- * Reads from the projected read model (SQLite) for optimal performance
- * Following CQRS pattern: queries go to read database, not event replay
- */
 export class GetAccountQuery {
   constructor(private readonly readRepository: AccountReadRepository) {}
 

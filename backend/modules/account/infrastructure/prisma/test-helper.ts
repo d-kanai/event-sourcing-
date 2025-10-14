@@ -6,18 +6,15 @@ import { unlinkSync, existsSync } from 'fs';
 const TEST_DB_PATH = join(__dirname, 'test.db');
 
 export async function setupTestDatabase(): Promise<PrismaClient> {
-  // Remove existing test database
   if (existsSync(TEST_DB_PATH)) {
     try {
       unlinkSync(TEST_DB_PATH);
     } catch (e) {
-      // Ignore errors if file doesn't exist
     }
   }
 
   const prisma = new PrismaClient();
 
-  // Create tables directly using SQL
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS accounts (
       id TEXT PRIMARY KEY,

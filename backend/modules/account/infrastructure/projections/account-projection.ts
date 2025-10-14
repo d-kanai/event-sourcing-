@@ -5,16 +5,19 @@ import { AggregateProjection } from '../../../shared/infrastructure/projections'
 import { Account } from '../../domain/entities/account';
 import { AccountId } from '../../domain/value-objects/account-id';
 
-/**
- * Projection for Account Created events
- *
- * Pattern: Replay aggregate from Event Store, then sync to read model
- * - Creates initial record in read DB
- * - Uses replayed aggregate state (not event data directly)
- */
-export class AccountCreatedProjection extends AggregateProjection<Account, AccountId> {
+export class AccountProjection extends AggregateProjection<Account, AccountId> {
+  private readonly supportedEventTypes = [
+    AccountEventType.ACCOUNT_CREATED,
+    AccountEventType.MONEY_DEPOSITED,
+    AccountEventType.MONEY_WITHDRAWN,
+  ];
+
   eventType(): string {
-    return AccountEventType.ACCOUNT_CREATED;
+    return this.supportedEventTypes[0];
+  }
+
+  getSupportedEventTypes(): string[] {
+    return this.supportedEventTypes;
   }
 
   protected extractAggregateId(event: DomainEvent): AccountId {
@@ -23,13 +26,17 @@ export class AccountCreatedProjection extends AggregateProjection<Account, Accou
   }
 
   protected async updateReadModel(account: Account): Promise<void> {
-    // Create initial record in read DB with aggregate's state
-    await this.prisma.account.create({
-      data: {
+    await this.prisma.account.upsert({
+      where: { id: account.id.getValue() },
+      create: {
         id: account.id.getValue(),
         balance: account.balance.getValue(),
         status: account.status.getValue(),
         createdAt: account.createdAt,
+      },
+      update: {
+        balance: account.balance.getValue(),
+        status: account.status.getValue(),
       },
     });
   }

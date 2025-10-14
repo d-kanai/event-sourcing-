@@ -13,12 +13,6 @@ export interface DepositOutput {
   createdAt: string;
 }
 
-/**
- * Command: Deposit money to account
- * - Reads from Event Store (source of truth for commands)
- * - Writes to Event Store + projects to read model
- * - Returns aggregate state directly (source of truth)
- */
 export class DepositCommand {
   constructor(
     private readonly repository: AccountRepository
@@ -27,20 +21,16 @@ export class DepositCommand {
   async execute(input: DepositInput): Promise<DepositOutput> {
     const accountId = AccountId.create(input.accountId);
 
-    // Read from Event Store to get current aggregate state
     const account = await this.repository.replayById(accountId);
 
     if (!account) {
       throw new Error(`Account not found: ${input.accountId}`);
     }
 
-    // Execute domain logic
     account.deposit(input.amount);
 
-    // Save to Event Store (which triggers projection to read model)
     await this.repository.save(account);
 
-    // Return aggregate state directly (source of truth after command execution)
     return account.toJSON();
   }
 }

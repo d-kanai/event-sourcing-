@@ -1,25 +1,12 @@
 import { Snapshot } from '../../../shared/infrastructure/event-store/base-event-sourced-repository';
 
-/**
- * Account Snapshot for Performance Optimization
- *
- * Pure Event Sourcing requires replaying all events from the beginning,
- * which becomes slow as event history grows. Snapshots solve this:
- *
- * Without Snapshot: Replay 10,000 events every time
- * With Snapshot: Load snapshot at event 9,900 + replay last 100 events
- *
- * Industry practice: Snapshot every 100-200 events (Axon Framework uses 100)
- */
-
 export interface AccountSnapshotData {
   accountId: string;
   balance: number;
   status: string;
   createdAt: string;
-  // Snapshot metadata
-  version: number; // Event version at which snapshot was taken
-  snapshotAt: string; // Timestamp when snapshot was created
+  version: number;
+  snapshotAt: string;
 }
 
 export class AccountSnapshot implements Snapshot {

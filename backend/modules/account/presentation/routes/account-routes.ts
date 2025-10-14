@@ -12,7 +12,6 @@ const accountRoutes = new Hono();
 
 const accountRepository = new PrismaAccountRepository(prisma);
 
-// Create account
 const createAccountSchema = z.object({
   initialBalance: z.number().nonnegative().optional(),
 });
@@ -35,7 +34,6 @@ accountRoutes.post(
   }
 );
 
-// Get account by ID
 accountRoutes.get('/:id', async (c) => {
   try {
     const id = c.req.param('id');
@@ -55,7 +53,6 @@ accountRoutes.get('/:id', async (c) => {
   }
 });
 
-// Deposit
 const depositSchema = z.object({
   amount: z.number().positive(),
 });
@@ -79,7 +76,6 @@ accountRoutes.post(
   }
 );
 
-// Withdraw
 const withdrawSchema = z.object({
   amount: z.number().positive(),
 });

@@ -12,10 +12,6 @@ export interface CreateAccountOutput {
   createdAt: string;
 }
 
-/**
- * Command: Create a new account
- * Writes to Event Store and returns the created aggregate state
- */
 export class CreateAccountCommand {
   constructor(
     private readonly repository: AccountRepository

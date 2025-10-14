@@ -8,6 +8,7 @@ import { CreateAccountCommand } from './create-account-command';
 import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
 import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
+import { AccountId } from '../../domain/value-objects/account-id';
 
 describe('CreateAccountCommand', () => {
   let prisma: PrismaClient;
@@ -92,6 +93,36 @@ describe('CreateAccountCommand', () => {
 
       const accounts = await prisma.account.findMany();
       expect(accounts).toHaveLength(2);
+    });
+
+    it('コマンド実行後にRDBにprojectionが正しく反映される', async () => {
+      const initialBalance = 5000;
+
+      // アカウント作成前: RDBに存在しない
+      const accountsBefore = await prisma.account.findMany();
+      expect(accountsBefore).toHaveLength(0);
+
+      // コマンド実行
+      const result = await useCase.execute({ initialBalance });
+
+      // アカウント作成後: RDBにprojectionが反映されている
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: result.id },
+      });
+
+      // Projectionが正しく動作していることを確認
+      expect(dbAccount).toBeDefined();
+      expect(dbAccount!.id).toBe(result.id);
+      expect(dbAccount!.balance).toBe(initialBalance);
+      expect(dbAccount!.status).toBe('ACTIVE');
+      expect(dbAccount!.createdAt).toBeInstanceOf(Date);
+
+      // Event Storeから再生した状態とRDBの状態が一致することを確認
+      const accountId = AccountId.create(result.id);
+      const replayedAccount = await repository.replayById(accountId);
+      expect(replayedAccount).toBeDefined();
+      expect(dbAccount!.balance).toBe(replayedAccount!.balance.getValue());
+      expect(dbAccount!.status).toBe(replayedAccount!.status.getValue());
     });
   });
 });

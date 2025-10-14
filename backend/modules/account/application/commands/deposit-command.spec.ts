@@ -11,6 +11,7 @@ import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/i
 import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
 import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
+import { AccountId } from '../../domain/value-objects/account-id';
 
 describe('DepositCommand', () => {
   let prisma: PrismaClient;
@@ -131,6 +132,44 @@ describe('DepositCommand', () => {
         where: { id: account.id },
       });
       expect(dbAccount!.balance).toBeCloseTo(999999.99, 2);
+    });
+
+    it('入金コマンド実行後にRDBにprojectionが正しく反映される', async () => {
+      const initialBalance = 1000;
+      const depositAmount = 750;
+      const expectedBalance = initialBalance + depositAmount;
+
+      // アカウント作成
+      const account = await createAccountCommand.execute({ initialBalance });
+
+      // 入金前のRDB状態を確認
+      const dbAccountBefore = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccountBefore!.balance).toBe(initialBalance);
+
+      // 入金コマンド実行
+      const result = await useCase.execute({
+        accountId: account.id,
+        amount: depositAmount,
+      });
+
+      // 入金後のRDB状態を確認
+      const dbAccountAfter = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+
+      // Projectionが正しく動作していることを確認
+      expect(dbAccountAfter).toBeDefined();
+      expect(dbAccountAfter!.balance).toBe(expectedBalance);
+      expect(dbAccountAfter!.status).toBe('ACTIVE');
+
+      // Event Storeから再生した状態とRDBの状態が一致することを確認
+      const accountId = AccountId.create(account.id);
+      const replayedAccount = await repository.replayById(accountId);
+      expect(replayedAccount).toBeDefined();
+      expect(dbAccountAfter!.balance).toBe(replayedAccount!.balance.getValue());
+      expect(dbAccountAfter!.balance).toBe(result.balance);
     });
   });
 });
