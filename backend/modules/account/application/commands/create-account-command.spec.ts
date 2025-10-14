@@ -6,13 +6,13 @@ import {
 } from '../../infrastructure/prisma/test-helper';
 import { CreateAccountCommand } from './create-account-command';
 import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
-import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
 
 describe('CreateAccountCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let repository: AccountWriteRepository;
+  let repository: AccountRepository;
   let useCase: CreateAccountCommand;
 
   beforeAll(async () => {
@@ -22,7 +22,7 @@ describe('CreateAccountCommand', () => {
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
     const projectionRegistry = new AccountProjectionRegistry(prisma as any);
-    repository = new AccountWriteRepository(eventStore, projectionRegistry);
+    repository = new AccountRepository(eventStore, projectionRegistry);
     useCase = new CreateAccountCommand(repository);
   });
 

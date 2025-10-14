@@ -2,7 +2,6 @@ import { AccountId } from '../value-objects/account-id';
 import { Balance } from '../value-objects/balance';
 import { AccountStatus } from '../value-objects/account-status';
 import {
-  AccountCreatedEvent,
   MoneyDepositedEvent,
   MoneyWithdrawnEvent,
   AccountSuspendedEvent,

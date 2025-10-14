@@ -15,15 +15,15 @@ import { AccountStatus } from '../../domain/value-objects/account-status';
  * CQRS Pattern:
  * - Read side: Queries from projected read model
  * - Queries use this repository (GetAccountQuery)
- * - Commands use AccountWriteRepository
+ * - Commands use AccountRepository
  *
  * Read Model Update Flow:
- * 1. Command writes events to event store (AccountWriteRepository)
+ * 1. Command writes events to event store (AccountRepository)
  * 2. Events are projected to read model (Projections)
  * 3. Queries read from read model (AccountReadRepository)
  *
  * Important:
- * - DO NOT use save() - all writes must go through AccountWriteRepository
+ * - DO NOT use save() - all writes must go through AccountRepository
  * - Read model is updated via projections, not directly
  */
 export class AccountReadRepository {
@@ -31,11 +31,11 @@ export class AccountReadRepository {
 
   /**
    * Save is not allowed on read repository
-   * Write operations must go through AccountWriteRepository (event store)
+   * Write operations must go through AccountRepository (event store)
    */
   async save(account: Account): Promise<void> {
     throw new Error(
-      'Write operations are not allowed on AccountReadRepository. Use AccountWriteRepository for writes.'
+      'Write operations are not allowed on AccountReadRepository. Use AccountRepository for writes.'
     );
   }
 

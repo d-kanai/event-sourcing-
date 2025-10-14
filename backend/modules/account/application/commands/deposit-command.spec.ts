@@ -8,14 +8,14 @@ import { DepositCommand } from './deposit-command';
 import { CreateAccountCommand } from './create-account-command';
 import { GetAccountQuery } from '../queries/get-account-query';
 import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
-import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
 import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
 
 describe('DepositCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let writeRepository: AccountWriteRepository;
+  let repository: AccountRepository;
   let readRepository: AccountReadRepository;
   let useCase: DepositCommand;
   let createAccountCommand: CreateAccountCommand;
@@ -28,11 +28,11 @@ describe('DepositCommand', () => {
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
     const projectionRegistry = new AccountProjectionRegistry(prisma as any);
-    writeRepository = new AccountWriteRepository(eventStore, projectionRegistry);
+    repository = new AccountRepository(eventStore, projectionRegistry);
     readRepository = new AccountReadRepository(prisma as any);
     // DepositUseCase now returns aggregate state directly
-    useCase = new DepositCommand(writeRepository);
-    createAccountCommand = new CreateAccountCommand(writeRepository);
+    useCase = new DepositCommand(repository);
+    createAccountCommand = new CreateAccountCommand(repository);
     getAccountQuery = new GetAccountQuery(readRepository);
   });
 

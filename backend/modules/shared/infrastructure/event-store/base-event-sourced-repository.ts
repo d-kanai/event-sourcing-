@@ -135,12 +135,15 @@ export abstract class BaseEventSourcedRepository<
   }
 
   /**
-   * Find aggregate by ID
+   * Replay aggregate by ID from event store
    * - Try to load from snapshot first (performance optimization)
    * - Fallback to full event replay if no snapshot exists
    * - Return null if aggregate doesn't exist
+   *
+   * This method replays events to reconstruct the aggregate's current state.
+   * Use this in Commands to get the latest aggregate state before executing domain logic.
    */
-  async findById(id: TId): Promise<TAggregate | null> {
+  async replayById(id: TId): Promise<TAggregate | null> {
     const streamName = this.getStreamName(id);
     const aggregateId = this.extractIdValue(id);
 

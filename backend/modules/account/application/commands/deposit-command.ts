@@ -1,4 +1,4 @@
-import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 import { AccountId } from '../../domain/value-objects/account-id';
 
 export interface DepositInput {
@@ -21,14 +21,14 @@ export interface DepositOutput {
  */
 export class DepositCommand {
   constructor(
-    private readonly writeRepository: AccountWriteRepository
+    private readonly repository: AccountRepository
   ) {}
 
   async execute(input: DepositInput): Promise<DepositOutput> {
     const accountId = AccountId.create(input.accountId);
 
     // Read from Event Store to get current aggregate state
-    const account = await this.writeRepository.findById(accountId);
+    const account = await this.repository.replayById(accountId);
 
     if (!account) {
       throw new Error(`Account not found: ${input.accountId}`);
@@ -38,7 +38,7 @@ export class DepositCommand {
     account.deposit(input.amount);
 
     // Save to Event Store (which triggers projection to read model)
-    await this.writeRepository.save(account);
+    await this.repository.save(account);
 
     // Return aggregate state directly (source of truth after command execution)
     return account.toJSON();

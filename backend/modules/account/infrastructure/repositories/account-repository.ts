@@ -10,10 +10,11 @@ import {
 } from '../../../shared/infrastructure/event-store/base-event-sourced-repository';
 
 /**
- * Account Write Repository (CQRS Write Side)
+ * Account Repository (CQRS Write Side / Event Sourcing)
  *
  * Responsibilities:
- * - Save Account aggregates to event store
+ * - Replay account aggregates from event store (replayById)
+ * - Save account aggregates to event store (save)
  * - Project events to read models (eventual consistency)
  * - Create snapshots for performance optimization
  *
@@ -23,13 +24,12 @@ import {
  * - Supports AccountSnapshot (every 100 events)
  *
  * CQRS Pattern:
- * - Write side: Stores events (source of truth)
- * - Commands use this repository (CreateAccount, Deposit, Withdraw)
- * - Queries use AccountReadRepository (GetAccount)
+ * - Commands use this repository (replayById + save)
+ * - Queries use AccountReadRepository (read from projections)
  *
- * All generic functionality (save, findById, snapshot logic) is inherited from BaseEventSourcedRepository.
+ * All generic functionality (save, replayById, snapshot logic) is inherited from BaseEventSourcedRepository.
  */
-export class AccountWriteRepository extends BaseEventSourcedRepository<
+export class AccountRepository extends BaseEventSourcedRepository<
   Account,
   AccountId,
   AccountSnapshot

@@ -7,14 +7,14 @@ import {
 import { GetAccountQuery } from './get-account-query';
 import { CreateAccountCommand } from '../commands/create-account-command';
 import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
-import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
 import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
 
 describe('GetAccountQuery', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let writeRepository: AccountWriteRepository;
+  let repository: AccountRepository;
   let readRepository: AccountReadRepository;
   let useCase: GetAccountQuery;
   let createAccountCommand: CreateAccountCommand;
@@ -26,12 +26,12 @@ describe('GetAccountQuery', () => {
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
     const projectionRegistry = new AccountProjectionRegistry(prisma as any);
-    writeRepository = new AccountWriteRepository(eventStore, projectionRegistry);
+    repository = new AccountRepository(eventStore, projectionRegistry);
     readRepository = new AccountReadRepository(prisma as any);
     // GetAccountQuery uses read repository (Query side of CQRS)
     useCase = new GetAccountQuery(readRepository);
     // CreateAccountCommand uses write repository (Command side of CQRS)
-    createAccountCommand = new CreateAccountCommand(writeRepository);
+    createAccountCommand = new CreateAccountCommand(repository);
   });
 
   afterAll(async () => {

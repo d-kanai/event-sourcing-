@@ -1,5 +1,5 @@
 import { AccountFactory } from '../../domain/factories/account-factory';
-import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 
 export interface CreateAccountInput {
   initialBalance: number;
@@ -18,13 +18,13 @@ export interface CreateAccountOutput {
  */
 export class CreateAccountCommand {
   constructor(
-    private readonly writeRepository: AccountWriteRepository
+    private readonly repository: AccountRepository
   ) {}
 
   async execute(input: CreateAccountInput): Promise<CreateAccountOutput> {
     const account = AccountFactory.createNew(input.initialBalance);
 
-    await this.writeRepository.save(account);
+    await this.repository.save(account);
 
     return account.toJSON();
   }

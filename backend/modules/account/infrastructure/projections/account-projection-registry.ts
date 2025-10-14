@@ -24,7 +24,7 @@ import { AccountClosedProjection } from './account-closed-projection';
  * Usage:
  * ```typescript
  * const registry = new AccountProjectionRegistry(prisma);
- * const writeRepo = new AccountWriteRepository(eventStore, registry);
+ * const writeRepo = new AccountRepository(eventStore, registry);
  * ```
  */
 export class AccountProjectionRegistry extends ProjectionRegistry {

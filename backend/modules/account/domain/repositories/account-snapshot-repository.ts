@@ -18,7 +18,7 @@ import { SnapshotRepository as BaseSnapshotRepository } from '../../../shared/in
  * Usage:
  * ```typescript
  * const snapshotRepo: AccountSnapshotRepository = new InMemoryAccountSnapshotRepository();
- * const writeRepo = new AccountWriteRepository(eventStore, projectionRegistry, snapshotRepo);
+ * const writeRepo = new AccountRepository(eventStore, projectionRegistry, snapshotRepo);
  * ```
  */
 export type AccountSnapshotRepository = BaseSnapshotRepository<AccountSnapshot>;
