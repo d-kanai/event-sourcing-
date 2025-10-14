@@ -1,6 +1,5 @@
-import { Account } from '../../domain/entities/account';
+import { AccountFactory } from '../../domain/factories/account-factory';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
-import { Balance } from '../../domain/value-objects/balance';
 
 export interface CreateAccountInput {
   initialBalance: number;
@@ -19,8 +18,7 @@ export class CreateAccountUseCase {
   ) {}
 
   async execute(input: CreateAccountInput): Promise<CreateAccountOutput> {
-    const initialBalance = Balance.create(input.initialBalance);
-    const account = Account.create(initialBalance);
+    const account = AccountFactory.createNew(input.initialBalance);
 
     await this.writeRepository.save(account);
 
