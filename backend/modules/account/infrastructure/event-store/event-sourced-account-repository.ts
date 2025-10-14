@@ -3,7 +3,7 @@ import { AccountId } from '../../domain/value-objects/account-id';
 import { DomainEvent } from '../../domain/events/domain-event';
 import { Balance } from '../../domain/value-objects/balance';
 import { AccountStatus } from '../../domain/value-objects/account-status';
-import { AccountProjection } from '../projections/account-projection';
+import { ProjectionRegistry } from '../projections/projection-registry';
 
 export interface EventStore {
   appendEvents(streamName: string, events: DomainEvent[]): Promise<void>;
@@ -13,7 +13,7 @@ export interface EventStore {
 export class EventSourcedAccountRepository {
   constructor(
     private readonly eventStore: EventStore,
-    private readonly projection?: AccountProjection
+    private readonly projectionRegistry?: ProjectionRegistry
   ) {}
 
   async save(account: Account): Promise<void> {
@@ -26,9 +26,9 @@ export class EventSourcedAccountRepository {
 
     await this.eventStore.appendEvents(streamName, events);
 
-    if (this.projection) {
+    if (this.projectionRegistry) {
       for (const event of events) {
-        await this.projection.project(event);
+        await this.projectionRegistry.project(event);
       }
     }
 
