@@ -6,14 +6,25 @@ import {
 } from '../../infrastructure/prisma/test-helper';
 import { GetAccountQuery } from './get-account-query';
 import { CreateAccountCommand } from '../commands/create-account-command';
-import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
+import { Firestore } from '@google-cloud/firestore';
+import {
+  setupFirestoreTest,
+  cleanupFirestoreTest,
+  teardownFirestoreTest,
+} from '../../../shared/infrastructure/event-store/firestore-test-helper';
+import {
+  FirestoreEventStore,
+  FirestoreEventStoreAdapter,
+} from '../../../shared/infrastructure/event-store';
 import { AccountRepository } from '../../infrastructure/repositories/account-repository';
 import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
 import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
 
 describe('GetAccountQuery', () => {
   let prisma: PrismaClient;
-  let eventStore: InMemoryEventStore;
+  let firestore: Firestore;
+  let firestoreEventStore: FirestoreEventStore;
+  let eventStoreAdapter: FirestoreEventStoreAdapter;
   let repository: AccountRepository;
   let readRepository: AccountReadRepository;
   let useCase: GetAccountQuery;
@@ -21,13 +32,15 @@ describe('GetAccountQuery', () => {
 
   beforeAll(async () => {
     prisma = await setupTestDatabase();
+    firestore = await setupFirestoreTest();
+    firestoreEventStore = new FirestoreEventStore(firestore);
   });
 
   beforeEach(() => {
-    eventStore = new InMemoryEventStore();
-    const repositoryForProjections = new AccountRepository(eventStore);
+    eventStoreAdapter = new FirestoreEventStoreAdapter(firestoreEventStore, 'Account');
+    const repositoryForProjections = new AccountRepository(eventStoreAdapter);
     const projectionRegistry = new AccountProjectionRegistry(prisma as any, repositoryForProjections);
-    repository = new AccountRepository(eventStore, projectionRegistry);
+    repository = new AccountRepository(eventStoreAdapter, projectionRegistry);
     readRepository = new AccountReadRepository(prisma as any);
     // GetAccountQuery uses read repository (Query side of CQRS)
     useCase = new GetAccountQuery(readRepository);
@@ -37,10 +50,11 @@ describe('GetAccountQuery', () => {
 
   afterAll(async () => {
     await teardownTestDatabase(prisma);
+    await teardownFirestoreTest(firestore);
   });
 
   afterEach(async () => {
-    eventStore.clear();
+    await cleanupFirestoreTest(firestore);
     await cleanupTestDatabase(prisma);
   });
 

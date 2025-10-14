@@ -9,3 +9,6 @@ export {
 
 export { EventStoreClient } from './event-store-client';
 export { InMemoryEventStore } from './in-memory-event-store';
+export { FirestoreEventStore } from './firestore-event-store';
+export { FirestoreEventStoreAdapter } from './firestore-event-store-adapter';
+export { getFirestore, resetFirestore } from './firestore-client';

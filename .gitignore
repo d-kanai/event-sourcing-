@@ -7,3 +7,4 @@ dist/
 backend/modules/account/infrastructure/prisma/generated/
 backend/modules/account/infrastructure/prisma/test.db
 backend/modules/account/infrastructure/prisma/migrations/
+firestore-debug.log
