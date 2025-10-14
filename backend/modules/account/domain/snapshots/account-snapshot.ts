@@ -1,3 +1,5 @@
+import { Snapshot } from '../../../shared/infrastructure/event-store/base-event-sourced-repository';
+
 /**
  * Account Snapshot for Performance Optimization
  *
@@ -20,7 +22,7 @@ export interface AccountSnapshotData {
   snapshotAt: string; // Timestamp when snapshot was created
 }
 
-export class AccountSnapshot {
+export class AccountSnapshot implements Snapshot {
   constructor(
     public readonly accountId: string,
     public readonly balance: number,

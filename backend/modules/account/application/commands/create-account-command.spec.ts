@@ -5,14 +5,14 @@ import {
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
 import { CreateAccountCommand } from './create-account-command';
-import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
-import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
-import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
+import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
+import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
 
 describe('CreateAccountCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let repository: EventSourcedAccountRepository;
+  let repository: AccountWriteRepository;
   let useCase: CreateAccountCommand;
 
   beforeAll(async () => {
@@ -21,8 +21,8 @@ describe('CreateAccountCommand', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = createProjectionRegistry(prisma as any);
-    repository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
+    const projectionRegistry = new AccountProjectionRegistry(prisma as any);
+    repository = new AccountWriteRepository(eventStore, projectionRegistry);
     useCase = new CreateAccountCommand(repository);
   });
 

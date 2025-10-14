@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { DomainEvent } from '../../../shared/domain/events/domain-event';
-import { EventType } from '../../domain/events/event-type';
-import { Projection } from './projection';
+import { AccountEventType } from '../../domain/events/account-event-type';
+import { Projection } from '../../../shared/infrastructure/projections';
 
 /**
  * Projection for Money Deposited events
@@ -11,7 +11,7 @@ export class MoneyDepositedProjection implements Projection {
   constructor(private readonly prisma: PrismaClient) {}
 
   eventType(): string {
-    return EventType.MONEY_DEPOSITED;
+    return AccountEventType.MONEY_DEPOSITED;
   }
 
   async project(event: DomainEvent): Promise<void> {

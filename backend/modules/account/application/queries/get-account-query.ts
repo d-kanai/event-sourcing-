@@ -1,5 +1,5 @@
 import { AccountId } from '../../domain/value-objects/account-id';
-import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
+import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
 
 export interface GetAccountInput {
   id: string;
@@ -18,7 +18,7 @@ export interface GetAccountOutput {
  * Following CQRS pattern: queries go to read database, not event replay
  */
 export class GetAccountQuery {
-  constructor(private readonly readRepository: PrismaAccountRepository) {}
+  constructor(private readonly readRepository: AccountReadRepository) {}
 
   async execute(input: GetAccountInput): Promise<GetAccountOutput | null> {
     const accountId = AccountId.create(input.id);

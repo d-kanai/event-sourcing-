@@ -3,8 +3,9 @@ import { AccountId } from '../value-objects/account-id';
 import { Balance } from '../value-objects/balance';
 import { AccountStatus } from '../value-objects/account-status';
 import { DomainEvent } from '../../../shared/domain/events/domain-event';
-import { EventType } from '../events/event-type';
+import { AccountEventType } from '../events/account-event-type';
 import { AccountSnapshot } from '../snapshots/account-snapshot';
+import { RehydratorStatic } from '../../../shared/infrastructure/event-store/base-event-sourced-repository';
 
 /**
  * Rehydrator for reconstructing Account aggregates from events
@@ -17,6 +18,9 @@ import { AccountSnapshot } from '../snapshots/account-snapshot';
  * This class is the counterpart to AccountFactory:
  * - AccountFactory: Creates new accounts (forward flow)
  * - AccountRehydrator: Rehydrates accounts from event history (backward flow)
+ *
+ * All methods are static as rehydration is stateless
+ * Conforms to RehydratorStatic<Account, AccountSnapshot> interface
  */
 export class AccountRehydrator {
   /**
@@ -32,7 +36,7 @@ export class AccountRehydrator {
     }
 
     const firstEvent = events[0];
-    if (firstEvent.eventType !== EventType.ACCOUNT_CREATED) {
+    if (firstEvent.eventType !== AccountEventType.ACCOUNT_CREATED) {
       throw new Error('First event must be AccountCreated');
     }
 
@@ -118,27 +122,27 @@ export class AccountRehydrator {
     const eventData = event.data as any;
 
     switch (event.eventType) {
-      case EventType.MONEY_DEPOSITED:
+      case AccountEventType.MONEY_DEPOSITED:
         // Calculate new balance from current balance + amount
         const newBalanceAfterDeposit = account.balance.add(eventData.amount);
         account.applyBalanceChange(newBalanceAfterDeposit);
         break;
 
-      case EventType.MONEY_WITHDRAWN:
+      case AccountEventType.MONEY_WITHDRAWN:
         // Calculate new balance from current balance - amount
         const newBalanceAfterWithdraw = account.balance.subtract(eventData.amount);
         account.applyBalanceChange(newBalanceAfterWithdraw);
         break;
 
-      case EventType.ACCOUNT_SUSPENDED:
+      case AccountEventType.ACCOUNT_SUSPENDED:
         account.applyStatusChange(AccountStatus.suspended());
         break;
 
-      case EventType.ACCOUNT_ACTIVATED:
+      case AccountEventType.ACCOUNT_ACTIVATED:
         account.applyStatusChange(AccountStatus.active());
         break;
 
-      case EventType.ACCOUNT_CLOSED:
+      case AccountEventType.ACCOUNT_CLOSED:
         account.applyStatusChange(AccountStatus.closed());
         break;
 
@@ -147,3 +151,6 @@ export class AccountRehydrator {
     }
   }
 }
+
+// Type check: Ensure AccountRehydrator conforms to RehydratorStatic interface
+const _typeCheck: RehydratorStatic<Account, AccountSnapshot> = AccountRehydrator;

@@ -1,4 +1,4 @@
-import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
+import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
 import { AccountId } from '../../domain/value-objects/account-id';
 
 export interface DepositInput {
@@ -21,7 +21,7 @@ export interface DepositOutput {
  */
 export class DepositCommand {
   constructor(
-    private readonly writeRepository: EventSourcedAccountRepository
+    private readonly writeRepository: AccountWriteRepository
   ) {}
 
   async execute(input: DepositInput): Promise<DepositOutput> {

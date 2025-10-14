@@ -1,5 +1,5 @@
 import { BaseDomainEvent } from '../../../shared/domain/events/domain-event';
-import { EventType } from './event-type';
+import { AccountEventType } from './account-event-type';
 
 export interface AccountCreatedData {
   accountId: string;
@@ -10,7 +10,7 @@ export interface AccountCreatedData {
 
 export class AccountCreatedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountCreatedData) {
-    super(EventType.ACCOUNT_CREATED, accountId, data);
+    super(AccountEventType.ACCOUNT_CREATED, accountId, data);
   }
 
   get accountData(): AccountCreatedData {
@@ -26,7 +26,7 @@ export interface MoneyDepositedData {
 
 export class MoneyDepositedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: MoneyDepositedData) {
-    super(EventType.MONEY_DEPOSITED, accountId, data);
+    super(AccountEventType.MONEY_DEPOSITED, accountId, data);
   }
 
   get depositData(): MoneyDepositedData {
@@ -42,7 +42,7 @@ export interface MoneyWithdrawnData {
 
 export class MoneyWithdrawnEvent extends BaseDomainEvent {
   constructor(accountId: string, data: MoneyWithdrawnData) {
-    super(EventType.MONEY_WITHDRAWN, accountId, data);
+    super(AccountEventType.MONEY_WITHDRAWN, accountId, data);
   }
 
   get withdrawData(): MoneyWithdrawnData {
@@ -57,7 +57,7 @@ export interface AccountSuspendedData {
 
 export class AccountSuspendedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountSuspendedData) {
-    super(EventType.ACCOUNT_SUSPENDED, accountId, data);
+    super(AccountEventType.ACCOUNT_SUSPENDED, accountId, data);
   }
 
   get suspensionData(): AccountSuspendedData {
@@ -72,7 +72,7 @@ export interface AccountActivatedData {
 
 export class AccountActivatedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountActivatedData) {
-    super(EventType.ACCOUNT_ACTIVATED, accountId, data);
+    super(AccountEventType.ACCOUNT_ACTIVATED, accountId, data);
   }
 
   get activationData(): AccountActivatedData {
@@ -87,7 +87,7 @@ export interface AccountClosedData {
 
 export class AccountClosedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountClosedData) {
-    super(EventType.ACCOUNT_CLOSED, accountId, data);
+    super(AccountEventType.ACCOUNT_CLOSED, accountId, data);
   }
 
   get closureData(): AccountClosedData {

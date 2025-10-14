@@ -1,5 +1,5 @@
 import { AccountFactory } from '../../domain/factories/account-factory';
-import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
+import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
 
 export interface CreateAccountInput {
   initialBalance: number;
@@ -18,7 +18,7 @@ export interface CreateAccountOutput {
  */
 export class CreateAccountCommand {
   constructor(
-    private readonly writeRepository: EventSourcedAccountRepository
+    private readonly writeRepository: AccountWriteRepository
   ) {}
 
   async execute(input: CreateAccountInput): Promise<CreateAccountOutput> {

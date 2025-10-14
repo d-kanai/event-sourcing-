@@ -7,16 +7,16 @@ import {
 import { DepositCommand } from './deposit-command';
 import { CreateAccountCommand } from './create-account-command';
 import { GetAccountQuery } from '../queries/get-account-query';
-import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
-import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
-import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
-import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
+import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
+import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
+import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
 
 describe('DepositCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let writeRepository: EventSourcedAccountRepository;
-  let readRepository: PrismaAccountRepository;
+  let writeRepository: AccountWriteRepository;
+  let readRepository: AccountReadRepository;
   let useCase: DepositCommand;
   let createAccountCommand: CreateAccountCommand;
   let getAccountQuery: GetAccountQuery;
@@ -27,9 +27,9 @@ describe('DepositCommand', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = createProjectionRegistry(prisma as any);
-    writeRepository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
-    readRepository = new PrismaAccountRepository(prisma as any);
+    const projectionRegistry = new AccountProjectionRegistry(prisma as any);
+    writeRepository = new AccountWriteRepository(eventStore, projectionRegistry);
+    readRepository = new AccountReadRepository(prisma as any);
     // DepositUseCase now returns aggregate state directly
     useCase = new DepositCommand(writeRepository);
     createAccountCommand = new CreateAccountCommand(writeRepository);

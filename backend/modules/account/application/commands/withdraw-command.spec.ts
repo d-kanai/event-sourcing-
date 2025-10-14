@@ -7,16 +7,16 @@ import {
 import { WithdrawCommand } from './withdraw-command';
 import { CreateAccountCommand } from './create-account-command';
 import { DepositCommand } from './deposit-command';
-import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
-import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
-import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
-import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
+import { InMemoryEventStore } from '../../../shared/infrastructure/event-store/in-memory-event-store';
+import { AccountWriteRepository } from '../../infrastructure/repositories/account-write-repository';
+import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
+import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
 
 describe('WithdrawCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let writeRepository: EventSourcedAccountRepository;
-  let readRepository: PrismaAccountRepository;
+  let writeRepository: AccountWriteRepository;
+  let readRepository: AccountReadRepository;
   let useCase: WithdrawCommand;
   let createAccountCommand: CreateAccountCommand;
   let depositCommand: DepositCommand;
@@ -27,9 +27,9 @@ describe('WithdrawCommand', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = createProjectionRegistry(prisma as any);
-    writeRepository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
-    readRepository = new PrismaAccountRepository(prisma as any);
+    const projectionRegistry = new AccountProjectionRegistry(prisma as any);
+    writeRepository = new AccountWriteRepository(eventStore, projectionRegistry);
+    readRepository = new AccountReadRepository(prisma as any);
     // WithdrawCommand now returns aggregate state directly
     useCase = new WithdrawCommand(writeRepository);
     createAccountCommand = new CreateAccountCommand(writeRepository);
