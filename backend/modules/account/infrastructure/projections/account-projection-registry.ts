@@ -3,9 +3,6 @@ import { ProjectionRegistry } from '../../../shared/infrastructure/projections';
 import { AccountCreatedProjection } from './account-created-projection';
 import { MoneyDepositedProjection } from './money-deposited-projection';
 import { MoneyWithdrawnProjection } from './money-withdrawn-projection';
-import { AccountSuspendedProjection } from './account-suspended-projection';
-import { AccountActivatedProjection } from './account-activated-projection';
-import { AccountClosedProjection } from './account-closed-projection';
 
 /**
  * Account Projection Registry
@@ -17,9 +14,6 @@ import { AccountClosedProjection } from './account-closed-projection';
  * - AccountCreatedProjection: Creates account record in read DB
  * - MoneyDepositedProjection: Updates balance (adds amount)
  * - MoneyWithdrawnProjection: Updates balance (subtracts amount)
- * - AccountSuspendedProjection: Updates status to SUSPENDED
- * - AccountActivatedProjection: Updates status to ACTIVE
- * - AccountClosedProjection: Updates status to CLOSED
  *
  * Usage:
  * ```typescript
@@ -35,8 +29,5 @@ export class AccountProjectionRegistry extends ProjectionRegistry {
     this.register(new AccountCreatedProjection(prisma));
     this.register(new MoneyDepositedProjection(prisma));
     this.register(new MoneyWithdrawnProjection(prisma));
-    this.register(new AccountSuspendedProjection(prisma));
-    this.register(new AccountActivatedProjection(prisma));
-    this.register(new AccountClosedProjection(prisma));
   }
 }

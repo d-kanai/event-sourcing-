@@ -134,18 +134,6 @@ export class AccountRehydrator {
         account.applyBalanceChange(newBalanceAfterWithdraw);
         break;
 
-      case AccountEventType.ACCOUNT_SUSPENDED:
-        account.applyStatusChange(AccountStatus.suspended());
-        break;
-
-      case AccountEventType.ACCOUNT_ACTIVATED:
-        account.applyStatusChange(AccountStatus.active());
-        break;
-
-      case AccountEventType.ACCOUNT_CLOSED:
-        account.applyStatusChange(AccountStatus.closed());
-        break;
-
       default:
         throw new Error(`Unknown event type: ${event.eventType}`);
     }

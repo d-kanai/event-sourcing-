@@ -4,9 +4,6 @@ import { AccountStatus } from '../value-objects/account-status';
 import {
   MoneyDepositedEvent,
   MoneyWithdrawnEvent,
-  AccountSuspendedEvent,
-  AccountActivatedEvent,
-  AccountClosedEvent,
 } from '../events/account-events';
 import { AggregateRoot } from '../../../shared/domain/entities/aggregate-root';
 
@@ -90,48 +87,6 @@ export class Account extends AggregateRoot {
         accountId: this._id.getValue(),
         amount: amount,
         withdrawnAt: new Date().toISOString(),
-      })
-    );
-  }
-
-  suspend(): void {
-    if (this._status.isClosed()) {
-      throw new Error('Cannot suspend a closed account');
-    }
-    this._status = AccountStatus.suspended();
-
-    this.addEvent(
-      new AccountSuspendedEvent(this._id.getValue(), {
-        accountId: this._id.getValue(),
-        suspendedAt: new Date().toISOString(),
-      })
-    );
-  }
-
-  activate(): void {
-    if (this._status.isClosed()) {
-      throw new Error('Cannot activate a closed account');
-    }
-    this._status = AccountStatus.active();
-
-    this.addEvent(
-      new AccountActivatedEvent(this._id.getValue(), {
-        accountId: this._id.getValue(),
-        activatedAt: new Date().toISOString(),
-      })
-    );
-  }
-
-  close(): void {
-    if (!this._balance.equals(Balance.zero())) {
-      throw new Error('Cannot close account with non-zero balance');
-    }
-    this._status = AccountStatus.closed();
-
-    this.addEvent(
-      new AccountClosedEvent(this._id.getValue(), {
-        accountId: this._id.getValue(),
-        closedAt: new Date().toISOString(),
       })
     );
   }
