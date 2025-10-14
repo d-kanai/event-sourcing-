@@ -4,22 +4,22 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { DepositUseCase } from './deposit';
-import { CreateAccountUseCase } from './create-account';
-import { GetAccountUseCase } from './get-account';
+import { DepositCommand } from './deposit-command';
+import { CreateAccountCommand } from './create-account-command';
+import { GetAccountQuery } from '../queries/get-account-query';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
 
-describe('DepositUseCase', () => {
+describe('DepositCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
   let writeRepository: EventSourcedAccountRepository;
   let readRepository: PrismaAccountRepository;
-  let useCase: DepositUseCase;
-  let createAccountUseCase: CreateAccountUseCase;
-  let getAccountUseCase: GetAccountUseCase;
+  let useCase: DepositCommand;
+  let createAccountCommand: CreateAccountCommand;
+  let getAccountQuery: GetAccountQuery;
 
   beforeAll(async () => {
     prisma = await setupTestDatabase();
@@ -30,10 +30,10 @@ describe('DepositUseCase', () => {
     const projectionRegistry = createProjectionRegistry(prisma as any);
     writeRepository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
     readRepository = new PrismaAccountRepository(prisma as any);
-    // DepositUseCase uses both repositories (Command with read model return)
-    useCase = new DepositUseCase(writeRepository, readRepository);
-    createAccountUseCase = new CreateAccountUseCase(writeRepository);
-    getAccountUseCase = new GetAccountUseCase(readRepository);
+    // DepositUseCase now returns aggregate state directly
+    useCase = new DepositCommand(writeRepository);
+    createAccountCommand = new CreateAccountCommand(writeRepository);
+    getAccountQuery = new GetAccountQuery(readRepository);
   });
 
   afterAll(async () => {
@@ -47,7 +47,7 @@ describe('DepositUseCase', () => {
 
   describe('execute', () => {
     it('アカウントに金額を入金できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 1000 });
+      const account = await createAccountCommand.execute({ initialBalance: 1000 });
 
       const result = await useCase.execute({
         accountId: account.id,
@@ -65,7 +65,7 @@ describe('DepositUseCase', () => {
     });
 
     it('残高ゼロのアカウントに入金できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 0 });
+      const account = await createAccountCommand.execute({ initialBalance: 0 });
 
       const result = await useCase.execute({
         accountId: account.id,
@@ -81,7 +81,7 @@ describe('DepositUseCase', () => {
     });
 
     it('複数回の入金を正しく処理できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 100 });
+      const account = await createAccountCommand.execute({ initialBalance: 100 });
 
       await useCase.execute({ accountId: account.id, amount: 50 });
       await useCase.execute({ accountId: account.id, amount: 75 });
@@ -96,7 +96,7 @@ describe('DepositUseCase', () => {
     });
 
     it('負の入金額は拒否される', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 1000 });
+      const account = await createAccountCommand.execute({ initialBalance: 1000 });
 
       await expect(
         useCase.execute({ accountId: account.id, amount: -100 })
@@ -117,7 +117,7 @@ describe('DepositUseCase', () => {
     });
 
     it('大きな金額の入金を処理できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 0 });
+      const account = await createAccountCommand.execute({ initialBalance: 0 });
 
       const result = await useCase.execute({
         accountId: account.id,

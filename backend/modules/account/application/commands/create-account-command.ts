@@ -12,7 +12,11 @@ export interface CreateAccountOutput {
   createdAt: string;
 }
 
-export class CreateAccountUseCase {
+/**
+ * Command: Create a new account
+ * Writes to Event Store and returns the created aggregate state
+ */
+export class CreateAccountCommand {
   constructor(
     private readonly writeRepository: EventSourcedAccountRepository
   ) {}

@@ -4,20 +4,20 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { GetAccountUseCase } from './get-account';
-import { CreateAccountUseCase } from './create-account';
+import { GetAccountQuery } from './get-account-query';
+import { CreateAccountCommand } from '../commands/create-account-command';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
 
-describe('GetAccountUseCase', () => {
+describe('GetAccountQuery', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
   let writeRepository: EventSourcedAccountRepository;
   let readRepository: PrismaAccountRepository;
-  let useCase: GetAccountUseCase;
-  let createAccountUseCase: CreateAccountUseCase;
+  let useCase: GetAccountQuery;
+  let createAccountCommand: CreateAccountCommand;
 
   beforeAll(async () => {
     prisma = await setupTestDatabase();
@@ -28,10 +28,10 @@ describe('GetAccountUseCase', () => {
     const projectionRegistry = createProjectionRegistry(prisma as any);
     writeRepository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
     readRepository = new PrismaAccountRepository(prisma as any);
-    // GetAccountUseCase uses read repository (Query side of CQRS)
-    useCase = new GetAccountUseCase(readRepository);
+    // GetAccountQuery uses read repository (Query side of CQRS)
+    useCase = new GetAccountQuery(readRepository);
     // CreateAccountUseCase uses write repository (Command side of CQRS)
-    createAccountUseCase = new CreateAccountUseCase(writeRepository);
+    createAccountCommand = new CreateAccountCommand(writeRepository);
   });
 
   afterAll(async () => {
@@ -45,7 +45,7 @@ describe('GetAccountUseCase', () => {
 
   describe('execute', () => {
     it('IDで既存のアカウントを取得できる', async () => {
-      const created = await createAccountUseCase.execute({ initialBalance: 500 });
+      const created = await createAccountCommand.execute({ initialBalance: 500 });
 
       const result = await useCase.execute({ id: created.id });
 
@@ -72,7 +72,7 @@ describe('GetAccountUseCase', () => {
 
     it('作成後のアカウントを正しい残高で取得できる', async () => {
       const initialBalance = 12345.6789;
-      const created = await createAccountUseCase.execute({ initialBalance });
+      const created = await createAccountCommand.execute({ initialBalance });
 
       const result = await useCase.execute({ id: created.id });
 
@@ -81,8 +81,8 @@ describe('GetAccountUseCase', () => {
     });
 
     it('複数の異なるアカウントを正しく取得できる', async () => {
-      const account1 = await createAccountUseCase.execute({ initialBalance: 100 });
-      const account2 = await createAccountUseCase.execute({ initialBalance: 200 });
+      const account1 = await createAccountCommand.execute({ initialBalance: 100 });
+      const account2 = await createAccountCommand.execute({ initialBalance: 200 });
 
       const result1 = await useCase.execute({ id: account1.id });
       const result2 = await useCase.execute({ id: account2.id });

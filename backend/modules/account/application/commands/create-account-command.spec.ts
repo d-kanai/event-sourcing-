@@ -4,16 +4,16 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { CreateAccountUseCase } from './create-account';
+import { CreateAccountCommand } from './create-account-command';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
 
-describe('CreateAccountUseCase', () => {
+describe('CreateAccountCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
   let repository: EventSourcedAccountRepository;
-  let useCase: CreateAccountUseCase;
+  let useCase: CreateAccountCommand;
 
   beforeAll(async () => {
     prisma = await setupTestDatabase();
@@ -23,7 +23,7 @@ describe('CreateAccountUseCase', () => {
     eventStore = new InMemoryEventStore();
     const projectionRegistry = createProjectionRegistry(prisma as any);
     repository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
-    useCase = new CreateAccountUseCase(repository);
+    useCase = new CreateAccountCommand(repository);
   });
 
   afterAll(async () => {

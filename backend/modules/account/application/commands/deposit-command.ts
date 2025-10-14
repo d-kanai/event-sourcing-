@@ -1,5 +1,4 @@
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
-import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { AccountId } from '../../domain/value-objects/account-id';
 
 export interface DepositInput {
@@ -15,15 +14,14 @@ export interface DepositOutput {
 }
 
 /**
- * Command use case following CQRS pattern:
+ * Command: Deposit money to account
  * - Reads from Event Store (source of truth for commands)
  * - Writes to Event Store + projects to read model
- * - Returns final state from read model (projected view)
+ * - Returns aggregate state directly (source of truth)
  */
-export class DepositUseCase {
+export class DepositCommand {
   constructor(
-    private readonly writeRepository: EventSourcedAccountRepository,
-    private readonly readRepository: PrismaAccountRepository
+    private readonly writeRepository: EventSourcedAccountRepository
   ) {}
 
   async execute(input: DepositInput): Promise<DepositOutput> {
@@ -42,8 +40,7 @@ export class DepositUseCase {
     // Save to Event Store (which triggers projection to read model)
     await this.writeRepository.save(account);
 
-    // Return from read model for consistent query response
-    const updatedAccount = await this.readRepository.findById(accountId);
-    return updatedAccount!.toJSON();
+    // Return aggregate state directly (source of truth after command execution)
+    return account.toJSON();
   }
 }

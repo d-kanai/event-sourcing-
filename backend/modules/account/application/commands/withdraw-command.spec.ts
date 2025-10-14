@@ -4,22 +4,22 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { WithdrawUseCase } from './withdraw';
-import { CreateAccountUseCase } from './create-account';
-import { DepositUseCase } from './deposit';
+import { WithdrawCommand } from './withdraw-command';
+import { CreateAccountCommand } from './create-account-command';
+import { DepositCommand } from './deposit-command';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
 
-describe('WithdrawUseCase', () => {
+describe('WithdrawCommand', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
   let writeRepository: EventSourcedAccountRepository;
   let readRepository: PrismaAccountRepository;
-  let useCase: WithdrawUseCase;
-  let createAccountUseCase: CreateAccountUseCase;
-  let depositUseCase: DepositUseCase;
+  let useCase: WithdrawCommand;
+  let createAccountCommand: CreateAccountCommand;
+  let depositCommand: DepositCommand;
 
   beforeAll(async () => {
     prisma = await setupTestDatabase();
@@ -30,10 +30,10 @@ describe('WithdrawUseCase', () => {
     const projectionRegistry = createProjectionRegistry(prisma as any);
     writeRepository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
     readRepository = new PrismaAccountRepository(prisma as any);
-    // WithdrawUseCase uses both repositories (Command with read model return)
-    useCase = new WithdrawUseCase(writeRepository, readRepository);
-    createAccountUseCase = new CreateAccountUseCase(writeRepository);
-    depositUseCase = new DepositUseCase(writeRepository, readRepository);
+    // WithdrawCommand now returns aggregate state directly
+    useCase = new WithdrawCommand(writeRepository);
+    createAccountCommand = new CreateAccountCommand(writeRepository);
+    depositCommand = new DepositCommand(writeRepository);
   });
 
   afterAll(async () => {
@@ -47,7 +47,7 @@ describe('WithdrawUseCase', () => {
 
   describe('execute', () => {
     it('アカウントから金額を出金できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 1000 });
+      const account = await createAccountCommand.execute({ initialBalance: 1000 });
 
       const result = await useCase.execute({
         accountId: account.id,
@@ -65,7 +65,7 @@ describe('WithdrawUseCase', () => {
     });
 
     it('残高全額を出金できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 500 });
+      const account = await createAccountCommand.execute({ initialBalance: 500 });
 
       const result = await useCase.execute({
         accountId: account.id,
@@ -81,7 +81,7 @@ describe('WithdrawUseCase', () => {
     });
 
     it('残高を超える出金は拒否される', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 1000 });
+      const account = await createAccountCommand.execute({ initialBalance: 1000 });
 
       await expect(
         useCase.execute({ accountId: account.id, amount: 1001 })
@@ -94,7 +94,7 @@ describe('WithdrawUseCase', () => {
     });
 
     it('残高ゼロのアカウントからの出金は拒否される', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 0 });
+      const account = await createAccountCommand.execute({ initialBalance: 0 });
 
       await expect(
         useCase.execute({ accountId: account.id, amount: 1 })
@@ -107,7 +107,7 @@ describe('WithdrawUseCase', () => {
     });
 
     it('負の出金額は拒否される', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 1000 });
+      const account = await createAccountCommand.execute({ initialBalance: 1000 });
 
       await expect(
         useCase.execute({ accountId: account.id, amount: -100 })
@@ -128,7 +128,7 @@ describe('WithdrawUseCase', () => {
     });
 
     it('複数回の出金を正しく処理できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 1000 });
+      const account = await createAccountCommand.execute({ initialBalance: 1000 });
 
       await useCase.execute({ accountId: account.id, amount: 100 });
       await useCase.execute({ accountId: account.id, amount: 200 });
@@ -143,11 +143,11 @@ describe('WithdrawUseCase', () => {
     });
 
     it('入金と出金を組み合わせて処理できる', async () => {
-      const account = await createAccountUseCase.execute({ initialBalance: 500 });
+      const account = await createAccountCommand.execute({ initialBalance: 500 });
 
-      await depositUseCase.execute({ accountId: account.id, amount: 300 });
+      await depositCommand.execute({ accountId: account.id, amount: 300 });
       await useCase.execute({ accountId: account.id, amount: 200 });
-      await depositUseCase.execute({ accountId: account.id, amount: 100 });
+      await depositCommand.execute({ accountId: account.id, amount: 100 });
       const result = await useCase.execute({ accountId: account.id, amount: 400 });
 
       expect(result.balance).toBe(300);

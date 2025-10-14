@@ -13,10 +13,11 @@ export interface GetAccountOutput {
 }
 
 /**
- * Query use case - reads from the projected read model (SQLite) for optimal performance.
- * Following CQRS pattern: queries go to read database, not event replay.
+ * Query: Get account by ID
+ * Reads from the projected read model (SQLite) for optimal performance
+ * Following CQRS pattern: queries go to read database, not event replay
  */
-export class GetAccountUseCase {
+export class GetAccountQuery {
   constructor(private readonly readRepository: PrismaAccountRepository) {}
 
   async execute(input: GetAccountInput): Promise<GetAccountOutput | null> {
