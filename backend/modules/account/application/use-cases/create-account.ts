@@ -1,5 +1,5 @@
 import { Account } from '../../domain/entities/account';
-import { AccountRepository } from '../../domain/repositories/account-repository';
+import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { Balance } from '../../domain/value-objects/balance';
 import { AccountStatus } from '../../domain/value-objects/account-status';
 
@@ -15,7 +15,9 @@ export interface CreateAccountOutput {
 }
 
 export class CreateAccountUseCase {
-  constructor(private readonly accountRepository: AccountRepository) {}
+  constructor(
+    private readonly writeRepository: EventSourcedAccountRepository
+  ) {}
 
   async execute(input: CreateAccountInput): Promise<CreateAccountOutput> {
     const account = Account.create({
@@ -25,7 +27,7 @@ export class CreateAccountUseCase {
       status: AccountStatus.active(),
     });
 
-    await this.accountRepository.save(account);
+    await this.writeRepository.save(account);
 
     return account.toJSON();
   }

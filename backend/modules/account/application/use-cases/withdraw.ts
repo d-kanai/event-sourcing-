@@ -1,6 +1,6 @@
-import { AccountRepository } from '../../domain/repositories/account-repository';
-import { AccountId } from '../../domain/value-objects/account-id';
+import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
+import { AccountId } from '../../domain/value-objects/account-id';
 
 export interface WithdrawInput {
   accountId: string;
@@ -22,7 +22,7 @@ export interface WithdrawOutput {
  */
 export class WithdrawUseCase {
   constructor(
-    private readonly writeRepository: AccountRepository,
+    private readonly writeRepository: EventSourcedAccountRepository,
     private readonly readRepository: PrismaAccountRepository
   ) {}
 

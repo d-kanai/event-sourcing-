@@ -1,6 +1,5 @@
 import { Account } from '../../domain/entities/account';
 import { AccountId } from '../../domain/value-objects/account-id';
-import { AccountRepository } from '../../domain/repositories/account-repository';
 import { DomainEvent } from '../../domain/events/domain-event';
 import { Balance } from '../../domain/value-objects/balance';
 import { AccountStatus } from '../../domain/value-objects/account-status';
@@ -11,7 +10,7 @@ export interface EventStore {
   readEvents(streamName: string): Promise<DomainEvent[]>;
 }
 
-export class EventSourcedAccountRepository implements AccountRepository {
+export class EventSourcedAccountRepository {
   constructor(
     private readonly eventStore: EventStore,
     private readonly projection?: AccountProjection
