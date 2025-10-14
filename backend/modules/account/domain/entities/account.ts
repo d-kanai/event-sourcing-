@@ -18,7 +18,12 @@ export class Account {
   private readonly _createdAt: Date;
   private uncommittedEvents: DomainEvent[] = [];
 
-  private constructor(
+  /**
+   * Constructor is public for Factory use
+   * Use AccountFactory.createNew() for creating new accounts
+   * Use Account.reconstruct() for rebuilding from events
+   */
+  constructor(
     id: AccountId,
     balance: Balance,
     status: AccountStatus,
@@ -31,35 +36,9 @@ export class Account {
   }
 
   /**
-   * Create a new account with specified initial balance
-   *
-   * Rules:
-   * - ID is auto-generated
-   * - Status is always ACTIVE
-   * - CreatedAt is current time
-   *
-   * @param initialBalance - Initial balance (must be non-negative)
-   * @returns New account instance
+   * Reconstruct account from event store
+   * Does not emit events (used for event replay)
    */
-  static create(initialBalance: Balance): Account {
-    const accountId = AccountId.generate();
-    const status = AccountStatus.active();
-    const createdAt = new Date();
-
-    const account = new Account(accountId, initialBalance, status, createdAt);
-
-    account.addEvent(
-      new AccountCreatedEvent(accountId.getValue(), {
-        accountId: accountId.getValue(),
-        initialBalance: initialBalance.getValue(),
-        status: status.getValue(),
-        createdAt: createdAt.toISOString(),
-      })
-    );
-
-    return account;
-  }
-
   static reconstruct(
     id: AccountId,
     balance: Balance,
@@ -67,6 +46,21 @@ export class Account {
     createdAt: Date
   ): Account {
     return new Account(id, balance, status, createdAt);
+  }
+
+  /**
+   * Emit AccountCreated event
+   * Called by AccountFactory after construction
+   */
+  emitCreatedEvent(): void {
+    this.addEvent(
+      new AccountCreatedEvent(this._id.getValue(), {
+        accountId: this._id.getValue(),
+        initialBalance: this._balance.getValue(),
+        status: this._status.getValue(),
+        createdAt: this._createdAt.toISOString(),
+      })
+    );
   }
 
   get id(): AccountId {
