@@ -4,18 +4,13 @@ import { AccountId } from '../../domain/value-objects/account-id';
 import { Balance } from '../../domain/value-objects/balance';
 import { AccountStatus } from '../../domain/value-objects/account-status';
 
-/**
- * Read-only repository for querying account data from SQLite.
- * DO NOT use save() - all writes must go through EventSourcedAccountRepository.
- */
-export class PrismaAccountRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+export interface ReadModelAccountRepository {
+  findById(id: AccountId): Promise<Account | null>;
+  findAll(): Promise<Account[]>;
+}
 
-  async save(account: Account): Promise<void> {
-    throw new Error(
-      'Write operations are not allowed on PrismaAccountRepository. Use EventSourcedAccountRepository for writes.'
-    );
-  }
+export class PrismaReadModelAccountRepository implements ReadModelAccountRepository {
+  constructor(private readonly prisma: PrismaClient) {}
 
   async findById(id: AccountId): Promise<Account | null> {
     const record = await this.prisma.account.findUnique({
@@ -39,19 +34,13 @@ export class PrismaAccountRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return records.map((record: any) =>
+    return records.map((record) =>
       Account.reconstruct({
         id: AccountId.create(record.id),
         balance: Balance.create(Number(record.balance)),
         status: AccountStatus.create(record.status),
         createdAt: record.createdAt,
       })
-    );
-  }
-
-  async delete(id: AccountId): Promise<void> {
-    throw new Error(
-      'Write operations are not allowed on PrismaAccountRepository. Use EventSourcedAccountRepository for writes.'
     );
   }
 }

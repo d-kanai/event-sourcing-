@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  eventstore:
+    image: eventstore/eventstore:23.10.0-bookworm-slim
+    container_name: eventstore
+    environment:
+      - EVENTSTORE_CLUSTER_SIZE=1
+      - EVENTSTORE_RUN_PROJECTIONS=All
+      - EVENTSTORE_START_STANDARD_PROJECTIONS=true
+      - EVENTSTORE_HTTP_PORT=2113
+      - EVENTSTORE_INSECURE=true
+      - EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true
+    ports:
+      - "2113:2113"
+      - "1113:1113"
+    volumes:
+      - eventstore-data:/var/lib/eventstore
+      - eventstore-logs:/var/log/eventstore
+    networks:
+      - event-sourcing-network
+
+volumes:
+  eventstore-data:
+  eventstore-logs:
+
+networks:
+  event-sourcing-network:
+    driver: bridge

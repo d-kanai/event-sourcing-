@@ -4,31 +4,28 @@ import { join } from 'path';
 import { unlinkSync, existsSync } from 'fs';
 
 const TEST_DB_PATH = join(__dirname, 'test.db');
-const SCHEMA_PATH = join(__dirname, 'schema.test.prisma');
 
 export async function setupTestDatabase(): Promise<PrismaClient> {
   // Remove existing test database
   if (existsSync(TEST_DB_PATH)) {
-    unlinkSync(TEST_DB_PATH);
+    try {
+      unlinkSync(TEST_DB_PATH);
+    } catch (e) {
+      // Ignore errors if file doesn't exist
+    }
   }
 
-  // Run migrations
-  execSync(`npx prisma migrate dev --schema=${SCHEMA_PATH} --name init --skip-generate`, {
-    stdio: 'ignore',
-  });
+  const prisma = new PrismaClient();
 
-  // Generate client
-  execSync(`npx prisma generate --schema=${SCHEMA_PATH}`, {
-    stdio: 'ignore',
-  });
-
-  const prisma = new PrismaClient({
-    datasources: {
-      db: {
-        url: `file:${TEST_DB_PATH}`,
-      },
-    },
-  });
+  // Create tables directly using SQL
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS accounts (
+      id TEXT PRIMARY KEY,
+      balance REAL NOT NULL,
+      status TEXT NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
   return prisma;
 }

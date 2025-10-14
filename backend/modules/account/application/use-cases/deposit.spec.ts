@@ -4,21 +4,29 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { DepositUseCase } from './deposit';
 import { CreateAccountUseCase } from './create-account';
 import { GetAccountUseCase } from './get-account';
+import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
+import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
+import { AccountProjection } from '../../infrastructure/projections/account-projection';
 
 describe('DepositUseCase', () => {
   let prisma: PrismaClient;
-  let repository: PrismaAccountRepository;
+  let eventStore: InMemoryEventStore;
+  let repository: EventSourcedAccountRepository;
   let useCase: DepositUseCase;
   let createAccountUseCase: CreateAccountUseCase;
   let getAccountUseCase: GetAccountUseCase;
 
   beforeAll(async () => {
     prisma = await setupTestDatabase();
-    repository = new PrismaAccountRepository(prisma as any);
+  });
+
+  beforeEach(() => {
+    eventStore = new InMemoryEventStore();
+    const projection = new AccountProjection(prisma as any);
+    repository = new EventSourcedAccountRepository(eventStore, projection);
     useCase = new DepositUseCase(repository);
     createAccountUseCase = new CreateAccountUseCase(repository);
     getAccountUseCase = new GetAccountUseCase(repository);
@@ -29,6 +37,7 @@ describe('DepositUseCase', () => {
   });
 
   afterEach(async () => {
+    eventStore.clear();
     await cleanupTestDatabase(prisma);
   });
 

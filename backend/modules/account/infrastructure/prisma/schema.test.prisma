@@ -10,7 +10,7 @@ datasource db {
 
 model Account {
   id        String   @id
-  balance   Real
+  balance   Float
   status    String
   createdAt DateTime @default(now()) @map("created_at")
 

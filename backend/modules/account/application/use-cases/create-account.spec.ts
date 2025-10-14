@@ -4,17 +4,25 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { CreateAccountUseCase } from './create-account';
+import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
+import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
+import { AccountProjection } from '../../infrastructure/projections/account-projection';
 
 describe('CreateAccountUseCase', () => {
   let prisma: PrismaClient;
-  let repository: PrismaAccountRepository;
+  let eventStore: InMemoryEventStore;
+  let repository: EventSourcedAccountRepository;
   let useCase: CreateAccountUseCase;
 
   beforeAll(async () => {
     prisma = await setupTestDatabase();
-    repository = new PrismaAccountRepository(prisma as any);
+  });
+
+  beforeEach(() => {
+    eventStore = new InMemoryEventStore();
+    const projection = new AccountProjection(prisma as any);
+    repository = new EventSourcedAccountRepository(eventStore, projection);
     useCase = new CreateAccountUseCase(repository);
   });
 
@@ -23,6 +31,7 @@ describe('CreateAccountUseCase', () => {
   });
 
   afterEach(async () => {
+    eventStore.clear();
     await cleanupTestDatabase(prisma);
   });
 
