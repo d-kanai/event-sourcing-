@@ -1,9 +1,7 @@
 import { Account } from '../../domain/entities/account';
 import { AccountId } from '../../domain/value-objects/account-id';
-import { DomainEvent } from '../../domain/events/domain-event';
-import { EventType } from '../../domain/events/event-type';
-import { Balance } from '../../domain/value-objects/balance';
-import { AccountStatus } from '../../domain/value-objects/account-status';
+import { DomainEvent } from '../../../shared/domain/events/domain-event';
+import { AccountRehydrator } from '../../domain/rehydrators/account-rehydrator';
 import { ProjectionRegistry } from '../projections/projection-registry';
 
 export interface EventStore {
@@ -44,64 +42,10 @@ export class EventSourcedAccountRepository {
       return null;
     }
 
-    return this.replayEvents(events);
+    return AccountRehydrator.rehydrate(events);
   }
 
   private getStreamName(accountId: AccountId): string {
     return `account-${accountId.getValue()}`;
-  }
-
-  private replayEvents(events: DomainEvent[]): Account {
-    let account: Account | null = null;
-    let balance = 0;
-    let status = 'ACTIVE';
-    let createdAt = new Date();
-    let accountId = '';
-
-    for (const event of events) {
-      const eventData = event.data as any;
-
-      switch (event.eventType) {
-        case EventType.ACCOUNT_CREATED:
-          accountId = eventData.accountId;
-          balance = eventData.initialBalance;
-          status = eventData.status;
-          createdAt = new Date(eventData.createdAt);
-          break;
-
-        case EventType.MONEY_DEPOSITED:
-          balance = eventData.balanceAfter;
-          break;
-
-        case EventType.MONEY_WITHDRAWN:
-          balance = eventData.balanceAfter;
-          break;
-
-        case EventType.ACCOUNT_SUSPENDED:
-          status = 'SUSPENDED';
-          break;
-
-        case EventType.ACCOUNT_ACTIVATED:
-          status = 'ACTIVE';
-          break;
-
-        case EventType.ACCOUNT_CLOSED:
-          status = 'CLOSED';
-          break;
-      }
-    }
-
-    if (!accountId) {
-      throw new Error('Unable to reconstruct account from events');
-    }
-
-    account = Account.reconstruct(
-      AccountId.create(accountId),
-      Balance.create(balance),
-      AccountStatus.create(status),
-      createdAt
-    );
-
-    return account;
   }
 }

@@ -1,7 +1,6 @@
 import { AccountId } from '../value-objects/account-id';
 import { Balance } from '../value-objects/balance';
 import { AccountStatus } from '../value-objects/account-status';
-import { DomainEvent } from '../events/domain-event';
 import {
   AccountCreatedEvent,
   MoneyDepositedEvent,
@@ -10,13 +9,13 @@ import {
   AccountActivatedEvent,
   AccountClosedEvent,
 } from '../events/account-events';
+import { AggregateRoot } from '../../../shared/domain/entities/aggregate-root';
 
-export class Account {
+export class Account extends AggregateRoot {
   private readonly _id: AccountId;
   private _balance: Balance;
   private _status: AccountStatus;
   private readonly _createdAt: Date;
-  private uncommittedEvents: DomainEvent[] = [];
 
   /**
    * Constructor is public for Factory use
@@ -29,6 +28,7 @@ export class Account {
     status: AccountStatus,
     createdAt: Date
   ) {
+    super();
     this._id = id;
     this._balance = balance;
     this._status = status;
@@ -48,20 +48,6 @@ export class Account {
     return new Account(id, balance, status, createdAt);
   }
 
-  /**
-   * Emit AccountCreated event
-   * Called by AccountFactory after construction
-   */
-  emitCreatedEvent(): void {
-    this.addEvent(
-      new AccountCreatedEvent(this._id.getValue(), {
-        accountId: this._id.getValue(),
-        initialBalance: this._balance.getValue(),
-        status: this._status.getValue(),
-        createdAt: this._createdAt.toISOString(),
-      })
-    );
-  }
 
   get id(): AccountId {
     return this._id;
@@ -153,16 +139,20 @@ export class Account {
     );
   }
 
-  private addEvent(event: DomainEvent): void {
-    this.uncommittedEvents.push(event);
+  /**
+   * Apply balance change (for event replay only, called by AccountRehydrator)
+   * Does not validate business rules or emit events
+   */
+  applyBalanceChange(balance: Balance): void {
+    this._balance = balance;
   }
 
-  getUncommittedEvents(): DomainEvent[] {
-    return [...this.uncommittedEvents];
-  }
-
-  clearUncommittedEvents(): void {
-    this.uncommittedEvents = [];
+  /**
+   * Apply status change (for event replay only, called by AccountRehydrator)
+   * Does not validate business rules or emit events
+   */
+  applyStatusChange(status: AccountStatus): void {
+    this._status = status;
   }
 
   toJSON() {

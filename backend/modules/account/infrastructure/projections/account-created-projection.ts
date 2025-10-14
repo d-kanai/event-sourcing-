@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { DomainEvent } from '../../domain/events/domain-event';
+import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { EventType } from '../../domain/events/event-type';
 import { Projection } from './projection';
 

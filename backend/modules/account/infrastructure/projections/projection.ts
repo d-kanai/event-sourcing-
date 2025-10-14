@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../domain/events/domain-event';
+import { DomainEvent } from '../../../shared/domain/events/domain-event';
 
 /**
  * Base interface for all projections

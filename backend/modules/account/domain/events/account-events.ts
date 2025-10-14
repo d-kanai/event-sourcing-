@@ -1,4 +1,4 @@
-import { BaseDomainEvent } from './domain-event';
+import { BaseDomainEvent } from '../../../shared/domain/events/domain-event';
 import { EventType } from './event-type';
 
 export interface AccountCreatedData {

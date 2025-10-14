@@ -4,7 +4,7 @@ import {
   JSONEventType,
   ResolvedEvent,
 } from '@eventstore/db-client';
-import { DomainEvent } from '../../domain/events/domain-event';
+import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { EventStore } from './event-sourced-account-repository';
 
 /**
