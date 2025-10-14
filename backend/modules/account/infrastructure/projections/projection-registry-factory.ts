@@ -8,13 +8,15 @@ import { AccountActivatedProjection } from './account-activated-projection';
 import { AccountClosedProjection } from './account-closed-projection';
 
 /**
- * Helper function to create a fully configured ProjectionRegistry for tests
+ * Factory function to create a fully configured ProjectionRegistry
+ * Used for both production and test environments
  */
-export function createTestProjectionRegistry(
+export function createProjectionRegistry(
   prisma: PrismaClient
 ): ProjectionRegistry {
   const registry = new ProjectionRegistry();
 
+  // Register all account projections
   registry.register(new AccountCreatedProjection(prisma));
   registry.register(new MoneyDepositedProjection(prisma));
   registry.register(new MoneyWithdrawnProjection(prisma));

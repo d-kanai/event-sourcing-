@@ -10,7 +10,7 @@ import { DepositUseCase } from './deposit';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
-import { createTestProjectionRegistry } from '../../infrastructure/projections/test-projection-registry';
+import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
 
 describe('WithdrawUseCase', () => {
   let prisma: PrismaClient;
@@ -27,7 +27,7 @@ describe('WithdrawUseCase', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = createTestProjectionRegistry(prisma as any);
+    const projectionRegistry = createProjectionRegistry(prisma as any);
     writeRepository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
     readRepository = new PrismaAccountRepository(prisma as any);
     // WithdrawUseCase uses both repositories (Command with read model return)

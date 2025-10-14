@@ -7,7 +7,7 @@ import {
 import { CreateAccountUseCase } from './create-account';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
-import { createTestProjectionRegistry } from '../../infrastructure/projections/test-projection-registry';
+import { createProjectionRegistry } from '../../infrastructure/projections/projection-registry-factory';
 
 describe('CreateAccountUseCase', () => {
   let prisma: PrismaClient;
@@ -21,7 +21,7 @@ describe('CreateAccountUseCase', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = createTestProjectionRegistry(prisma as any);
+    const projectionRegistry = createProjectionRegistry(prisma as any);
     repository = new EventSourcedAccountRepository(eventStore, projectionRegistry);
     useCase = new CreateAccountUseCase(repository);
   });
