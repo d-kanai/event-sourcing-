@@ -1,12 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { DomainEvent } from '../../domain/events/domain-event';
+import { EventType } from '../../domain/events/event-type';
 import { Projection } from './projection';
 
 export class AccountClosedProjection implements Projection {
   constructor(private readonly prisma: PrismaClient) {}
 
   eventType(): string {
-    return 'AccountClosed';
+    return EventType.ACCOUNT_CLOSED;
   }
 
   async project(event: DomainEvent): Promise<void> {

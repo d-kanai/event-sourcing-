@@ -1,4 +1,5 @@
 import { BaseDomainEvent } from './domain-event';
+import { EventType } from './event-type';
 
 export interface AccountCreatedData {
   accountId: string;
@@ -9,7 +10,7 @@ export interface AccountCreatedData {
 
 export class AccountCreatedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountCreatedData) {
-    super('AccountCreated', accountId, data);
+    super(EventType.ACCOUNT_CREATED, accountId, data);
   }
 
   get accountData(): AccountCreatedData {
@@ -26,7 +27,7 @@ export interface MoneyDepositedData {
 
 export class MoneyDepositedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: MoneyDepositedData) {
-    super('MoneyDeposited', accountId, data);
+    super(EventType.MONEY_DEPOSITED, accountId, data);
   }
 
   get depositData(): MoneyDepositedData {
@@ -43,7 +44,7 @@ export interface MoneyWithdrawnData {
 
 export class MoneyWithdrawnEvent extends BaseDomainEvent {
   constructor(accountId: string, data: MoneyWithdrawnData) {
-    super('MoneyWithdrawn', accountId, data);
+    super(EventType.MONEY_WITHDRAWN, accountId, data);
   }
 
   get withdrawData(): MoneyWithdrawnData {
@@ -58,7 +59,7 @@ export interface AccountSuspendedData {
 
 export class AccountSuspendedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountSuspendedData) {
-    super('AccountSuspended', accountId, data);
+    super(EventType.ACCOUNT_SUSPENDED, accountId, data);
   }
 
   get suspensionData(): AccountSuspendedData {
@@ -73,7 +74,7 @@ export interface AccountActivatedData {
 
 export class AccountActivatedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountActivatedData) {
-    super('AccountActivated', accountId, data);
+    super(EventType.ACCOUNT_ACTIVATED, accountId, data);
   }
 
   get activationData(): AccountActivatedData {
@@ -88,7 +89,7 @@ export interface AccountClosedData {
 
 export class AccountClosedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountClosedData) {
-    super('AccountClosed', accountId, data);
+    super(EventType.ACCOUNT_CLOSED, accountId, data);
   }
 
   get closureData(): AccountClosedData {

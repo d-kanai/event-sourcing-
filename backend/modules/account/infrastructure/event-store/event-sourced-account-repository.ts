@@ -1,6 +1,7 @@
 import { Account } from '../../domain/entities/account';
 import { AccountId } from '../../domain/value-objects/account-id';
 import { DomainEvent } from '../../domain/events/domain-event';
+import { EventType } from '../../domain/events/event-type';
 import { Balance } from '../../domain/value-objects/balance';
 import { AccountStatus } from '../../domain/value-objects/account-status';
 import { ProjectionRegistry } from '../projections/projection-registry';
@@ -61,30 +62,30 @@ export class EventSourcedAccountRepository {
       const eventData = event.data as any;
 
       switch (event.eventType) {
-        case 'AccountCreated':
+        case EventType.ACCOUNT_CREATED:
           accountId = eventData.accountId;
           balance = eventData.initialBalance;
           status = eventData.status;
           createdAt = new Date(eventData.createdAt);
           break;
 
-        case 'MoneyDeposited':
+        case EventType.MONEY_DEPOSITED:
           balance = eventData.balanceAfter;
           break;
 
-        case 'MoneyWithdrawn':
+        case EventType.MONEY_WITHDRAWN:
           balance = eventData.balanceAfter;
           break;
 
-        case 'AccountSuspended':
+        case EventType.ACCOUNT_SUSPENDED:
           status = 'SUSPENDED';
           break;
 
-        case 'AccountActivated':
+        case EventType.ACCOUNT_ACTIVATED:
           status = 'ACTIVE';
           break;
 
-        case 'AccountClosed':
+        case EventType.ACCOUNT_CLOSED:
           status = 'CLOSED';
           break;
       }

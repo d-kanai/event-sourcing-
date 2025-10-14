@@ -1,12 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { DomainEvent } from '../../domain/events/domain-event';
+import { EventType } from '../../domain/events/event-type';
 import { Projection } from './projection';
 
 export class AccountActivatedProjection implements Projection {
   constructor(private readonly prisma: PrismaClient) {}
 
   eventType(): string {
-    return 'AccountActivated';
+    return EventType.ACCOUNT_ACTIVATED;
   }
 
   async project(event: DomainEvent): Promise<void> {
