@@ -33,25 +33,4 @@ export class PrismaAccountRepository {
       createdAt: record.createdAt,
     });
   }
-
-  async findAll(): Promise<Account[]> {
-    const records = await this.prisma.account.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return records.map((record: any) =>
-      Account.reconstruct({
-        id: AccountId.create(record.id),
-        balance: Balance.create(Number(record.balance)),
-        status: AccountStatus.create(record.status),
-        createdAt: record.createdAt,
-      })
-    );
-  }
-
-  async delete(id: AccountId): Promise<void> {
-    throw new Error(
-      'Write operations are not allowed on PrismaAccountRepository. Use EventSourcedAccountRepository for writes.'
-    );
-  }
 }

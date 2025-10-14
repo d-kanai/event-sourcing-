@@ -47,14 +47,6 @@ export class EventSourcedAccountRepository implements AccountRepository {
     return this.replayEvents(events);
   }
 
-  async findAll(): Promise<Account[]> {
-    throw new Error('findAll is not supported for event sourced aggregates');
-  }
-
-  async delete(id: AccountId): Promise<void> {
-    throw new Error('delete is not supported for event sourced aggregates');
-  }
-
   private getStreamName(accountId: AccountId): string {
     return `account-${accountId.getValue()}`;
   }
