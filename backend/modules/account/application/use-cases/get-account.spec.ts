@@ -8,12 +8,14 @@ import { GetAccountUseCase } from './get-account';
 import { CreateAccountUseCase } from './create-account';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
+import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { AccountProjection } from '../../infrastructure/projections/account-projection';
 
 describe('GetAccountUseCase', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let repository: EventSourcedAccountRepository;
+  let writeRepository: EventSourcedAccountRepository;
+  let readRepository: PrismaAccountRepository;
   let useCase: GetAccountUseCase;
   let createAccountUseCase: CreateAccountUseCase;
 
@@ -24,9 +26,12 @@ describe('GetAccountUseCase', () => {
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
     const projection = new AccountProjection(prisma as any);
-    repository = new EventSourcedAccountRepository(eventStore, projection);
-    useCase = new GetAccountUseCase(repository);
-    createAccountUseCase = new CreateAccountUseCase(repository);
+    writeRepository = new EventSourcedAccountRepository(eventStore, projection);
+    readRepository = new PrismaAccountRepository(prisma as any);
+    // GetAccountUseCase uses read repository (Query side of CQRS)
+    useCase = new GetAccountUseCase(readRepository);
+    // CreateAccountUseCase uses write repository (Command side of CQRS)
+    createAccountUseCase = new CreateAccountUseCase(writeRepository);
   });
 
   afterAll(async () => {

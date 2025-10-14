@@ -9,12 +9,14 @@ import { CreateAccountUseCase } from './create-account';
 import { GetAccountUseCase } from './get-account';
 import { InMemoryEventStore } from '../../infrastructure/event-store/in-memory-event-store';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
+import { PrismaAccountRepository } from '../../infrastructure/repositories/prisma-account-repository';
 import { AccountProjection } from '../../infrastructure/projections/account-projection';
 
 describe('DepositUseCase', () => {
   let prisma: PrismaClient;
   let eventStore: InMemoryEventStore;
-  let repository: EventSourcedAccountRepository;
+  let writeRepository: EventSourcedAccountRepository;
+  let readRepository: PrismaAccountRepository;
   let useCase: DepositUseCase;
   let createAccountUseCase: CreateAccountUseCase;
   let getAccountUseCase: GetAccountUseCase;
@@ -26,10 +28,12 @@ describe('DepositUseCase', () => {
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
     const projection = new AccountProjection(prisma as any);
-    repository = new EventSourcedAccountRepository(eventStore, projection);
-    useCase = new DepositUseCase(repository);
-    createAccountUseCase = new CreateAccountUseCase(repository);
-    getAccountUseCase = new GetAccountUseCase(repository);
+    writeRepository = new EventSourcedAccountRepository(eventStore, projection);
+    readRepository = new PrismaAccountRepository(prisma as any);
+    // DepositUseCase uses both repositories (Command with read model return)
+    useCase = new DepositUseCase(writeRepository, readRepository);
+    createAccountUseCase = new CreateAccountUseCase(writeRepository);
+    getAccountUseCase = new GetAccountUseCase(readRepository);
   });
 
   afterAll(async () => {
