@@ -11,17 +11,24 @@ import {
   AccountClosedEvent,
 } from '../events/account-events';
 
-export interface AccountProps {
-  id: AccountId;
-  balance: Balance;
-  status: AccountStatus;
-  createdAt: Date;
-}
-
 export class Account {
+  private readonly _id: AccountId;
+  private _balance: Balance;
+  private _status: AccountStatus;
+  private readonly _createdAt: Date;
   private uncommittedEvents: DomainEvent[] = [];
 
-  private constructor(private props: AccountProps) {}
+  private constructor(
+    id: AccountId,
+    balance: Balance,
+    status: AccountStatus,
+    createdAt: Date
+  ) {
+    this._id = id;
+    this._balance = balance;
+    this._status = status;
+    this._createdAt = createdAt;
+  }
 
   static create(props: {
     id?: AccountId;
@@ -34,12 +41,7 @@ export class Account {
     const status = props.status ?? AccountStatus.active();
     const createdAt = props.createdAt ?? new Date();
 
-    const account = new Account({
-      id: accountId,
-      balance: initialBalance,
-      status: status,
-      createdAt: createdAt,
-    });
+    const account = new Account(accountId, initialBalance, status, createdAt);
 
     account.addEvent(
       new AccountCreatedEvent(accountId.getValue(), {
@@ -53,95 +55,100 @@ export class Account {
     return account;
   }
 
-  static reconstruct(props: AccountProps): Account {
-    return new Account(props);
+  static reconstruct(
+    id: AccountId,
+    balance: Balance,
+    status: AccountStatus,
+    createdAt: Date
+  ): Account {
+    return new Account(id, balance, status, createdAt);
   }
 
   get id(): AccountId {
-    return this.props.id;
+    return this._id;
   }
 
   get balance(): Balance {
-    return this.props.balance;
+    return this._balance;
   }
 
   get status(): AccountStatus {
-    return this.props.status;
+    return this._status;
   }
 
   get createdAt(): Date {
-    return this.props.createdAt;
+    return this._createdAt;
   }
 
   deposit(amount: number): void {
-    if (!this.status.isActive()) {
+    if (!this._status.isActive()) {
       throw new Error('Cannot deposit to non-active account');
     }
-    this.props.balance = this.props.balance.add(amount);
+    this._balance = this._balance.add(amount);
 
     this.addEvent(
-      new MoneyDepositedEvent(this.id.getValue(), {
-        accountId: this.id.getValue(),
+      new MoneyDepositedEvent(this._id.getValue(), {
+        accountId: this._id.getValue(),
         amount: amount,
-        balanceAfter: this.props.balance.getValue(),
+        balanceAfter: this._balance.getValue(),
         depositedAt: new Date().toISOString(),
       })
     );
   }
 
   withdraw(amount: number): void {
-    if (!this.status.isActive()) {
+    if (!this._status.isActive()) {
       throw new Error('Cannot withdraw from non-active account');
     }
-    this.props.balance = this.props.balance.subtract(amount);
+    this._balance = this._balance.subtract(amount);
 
     this.addEvent(
-      new MoneyWithdrawnEvent(this.id.getValue(), {
-        accountId: this.id.getValue(),
+      new MoneyWithdrawnEvent(this._id.getValue(), {
+        accountId: this._id.getValue(),
         amount: amount,
-        balanceAfter: this.props.balance.getValue(),
+        balanceAfter: this._balance.getValue(),
         withdrawnAt: new Date().toISOString(),
       })
     );
   }
 
   suspend(): void {
-    if (this.status.isClosed()) {
+    if (this._status.isClosed()) {
       throw new Error('Cannot suspend a closed account');
     }
-    this.props.status = AccountStatus.suspended();
+    this._status = AccountStatus.suspended();
 
     this.addEvent(
-      new AccountSuspendedEvent(this.id.getValue(), {
-        accountId: this.id.getValue(),
+      new AccountSuspendedEvent(this._id.getValue(), {
+        accountId: this._id.getValue(),
         suspendedAt: new Date().toISOString(),
       })
     );
   }
 
   activate(): void {
-    if (this.status.isClosed()) {
+    if (this._status.isClosed()) {
       throw new Error('Cannot activate a closed account');
     }
-    this.props.status = AccountStatus.active();
+    this._status = AccountStatus.active();
 
     this.addEvent(
-      new AccountActivatedEvent(this.id.getValue(), {
-        accountId: this.id.getValue(),
+      new AccountActivatedEvent(this._id.getValue(), {
+        accountId: this._id.getValue(),
         activatedAt: new Date().toISOString(),
       })
     );
   }
 
   close(): void {
-    if (!this.balance.equals(Balance.zero())) {
+    if (!this._balance.equals(Balance.zero())) {
       throw new Error('Cannot close account with non-zero balance');
     }
-    this.props.status = AccountStatus.closed();
+    this._status = AccountStatus.closed();
 
     this.addEvent(
-      new AccountClosedEvent(this.id.getValue(), {
-        accountId: this.id.getValue(),
+      new AccountClosedEvent(this._id.getValue(), {
+        accountId: this._id.getValue(),
         closedAt: new Date().toISOString(),
       })
     );

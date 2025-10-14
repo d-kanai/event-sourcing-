@@ -94,12 +94,12 @@ export class EventSourcedAccountRepository {
       throw new Error('Unable to reconstruct account from events');
     }
 
-    account = Account.reconstruct({
-      id: AccountId.create(accountId),
-      balance: Balance.create(balance),
-      status: AccountStatus.create(status),
-      createdAt: createdAt,
-    });
+    account = Account.reconstruct(
+      AccountId.create(accountId),
+      Balance.create(balance),
+      AccountStatus.create(status),
+      createdAt
+    );
 
     return account;
   }

@@ -26,11 +26,11 @@ export class PrismaAccountRepository {
       return null;
     }
 
-    return Account.reconstruct({
-      id: AccountId.create(record.id),
-      balance: Balance.create(Number(record.balance)),
-      status: AccountStatus.create(record.status),
-      createdAt: record.createdAt,
-    });
+    return Account.reconstruct(
+      AccountId.create(record.id),
+      Balance.create(Number(record.balance)),
+      AccountStatus.create(record.status),
+      record.createdAt
+    );
   }
 }
