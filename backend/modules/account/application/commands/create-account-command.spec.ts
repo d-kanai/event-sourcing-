@@ -21,7 +21,8 @@ describe('CreateAccountCommand', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = new AccountProjectionRegistry(prisma as any);
+    const repositoryForProjections = new AccountRepository(eventStore);
+    const projectionRegistry = new AccountProjectionRegistry(prisma as any, repositoryForProjections);
     repository = new AccountRepository(eventStore, projectionRegistry);
     useCase = new CreateAccountCommand(repository);
   });

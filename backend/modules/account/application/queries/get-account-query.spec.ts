@@ -25,7 +25,8 @@ describe('GetAccountQuery', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = new AccountProjectionRegistry(prisma as any);
+    const repositoryForProjections = new AccountRepository(eventStore);
+    const projectionRegistry = new AccountProjectionRegistry(prisma as any, repositoryForProjections);
     repository = new AccountRepository(eventStore, projectionRegistry);
     readRepository = new AccountReadRepository(prisma as any);
     // GetAccountQuery uses read repository (Query side of CQRS)

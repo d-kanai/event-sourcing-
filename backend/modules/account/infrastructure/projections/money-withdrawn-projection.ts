@@ -1,38 +1,33 @@
 import { PrismaClient } from '@prisma/client';
 import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { AccountEventType } from '../../domain/events/account-event-type';
-import { Projection } from '../../../shared/infrastructure/projections';
+import { AggregateProjection } from '../../../shared/infrastructure/projections';
+import { Account } from '../../domain/entities/account';
+import { AccountId } from '../../domain/value-objects/account-id';
 
 /**
  * Projection for Money Withdrawn events
- * Pure Event Sourcing: Calculate new balance from current balance - amount
+ *
+ * Pattern: Replay aggregate from Event Store, then sync to read model
+ * - No calculation logic here (handled by Rehydrator)
+ * - Simply copies latest aggregate state to RDB
  */
-export class MoneyWithdrawnProjection implements Projection {
-  constructor(private readonly prisma: PrismaClient) {}
-
+export class MoneyWithdrawnProjection extends AggregateProjection<Account, AccountId> {
   eventType(): string {
     return AccountEventType.MONEY_WITHDRAWN;
   }
 
-  async project(event: DomainEvent): Promise<void> {
+  protected extractAggregateId(event: DomainEvent): AccountId {
     const data = event.data as any;
+    return AccountId.create(data.accountId);
+  }
 
-    // Read current balance from read model
-    const account = await this.prisma.account.findUnique({
-      where: { id: data.accountId },
-    });
-
-    if (!account) {
-      throw new Error(`Account not found for projection: ${data.accountId}`);
-    }
-
-    // Calculate new balance: current balance - withdraw amount
-    const newBalance = account.balance - data.amount;
-
+  protected async updateReadModel(account: Account): Promise<void> {
     await this.prisma.account.update({
-      where: { id: data.accountId },
+      where: { id: account.id.getValue() },
       data: {
-        balance: newBalance,
+        balance: account.balance.getValue(),
+        status: account.status.getValue(),
       },
     });
   }

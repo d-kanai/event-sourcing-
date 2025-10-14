@@ -27,7 +27,8 @@ describe('WithdrawCommand', () => {
 
   beforeEach(() => {
     eventStore = new InMemoryEventStore();
-    const projectionRegistry = new AccountProjectionRegistry(prisma as any);
+    const repositoryForProjections = new AccountRepository(eventStore);
+    const projectionRegistry = new AccountProjectionRegistry(prisma as any, repositoryForProjections);
     repository = new AccountRepository(eventStore, projectionRegistry);
     readRepository = new AccountReadRepository(prisma as any);
     // WithdrawCommand now returns aggregate state directly
