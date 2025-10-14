@@ -30,16 +30,21 @@ export class Account {
     this._createdAt = createdAt;
   }
 
-  static create(props: {
-    id?: AccountId;
-    balance?: Balance;
-    status?: AccountStatus;
-    createdAt?: Date;
-  }): Account {
-    const accountId = props.id ?? AccountId.generate();
-    const initialBalance = props.balance ?? Balance.zero();
-    const status = props.status ?? AccountStatus.active();
-    const createdAt = props.createdAt ?? new Date();
+  /**
+   * Create a new account with specified initial balance
+   *
+   * Rules:
+   * - ID is auto-generated
+   * - Status is always ACTIVE
+   * - CreatedAt is current time
+   *
+   * @param initialBalance - Initial balance (must be non-negative)
+   * @returns New account instance
+   */
+  static create(initialBalance: Balance): Account {
+    const accountId = AccountId.generate();
+    const status = AccountStatus.active();
+    const createdAt = new Date();
 
     const account = new Account(accountId, initialBalance, status, createdAt);
 

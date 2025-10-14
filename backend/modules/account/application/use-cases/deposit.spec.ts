@@ -65,7 +65,7 @@ describe('DepositUseCase', () => {
     });
 
     it('残高ゼロのアカウントに入金できる', async () => {
-      const account = await createAccountUseCase.execute({});
+      const account = await createAccountUseCase.execute({ initialBalance: 0 });
 
       const result = await useCase.execute({
         accountId: account.id,

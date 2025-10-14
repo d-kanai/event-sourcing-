@@ -1,10 +1,9 @@
 import { Account } from '../../domain/entities/account';
 import { EventSourcedAccountRepository } from '../../infrastructure/event-store/event-sourced-account-repository';
 import { Balance } from '../../domain/value-objects/balance';
-import { AccountStatus } from '../../domain/value-objects/account-status';
 
 export interface CreateAccountInput {
-  initialBalance?: number;
+  initialBalance: number;
 }
 
 export interface CreateAccountOutput {
@@ -20,12 +19,8 @@ export class CreateAccountUseCase {
   ) {}
 
   async execute(input: CreateAccountInput): Promise<CreateAccountOutput> {
-    const account = Account.create({
-      balance: input.initialBalance
-        ? Balance.create(input.initialBalance)
-        : Balance.zero(),
-      status: AccountStatus.active(),
-    });
+    const initialBalance = Balance.create(input.initialBalance);
+    const account = Account.create(initialBalance);
 
     await this.writeRepository.save(account);
 

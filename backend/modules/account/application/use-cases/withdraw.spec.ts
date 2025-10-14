@@ -94,7 +94,7 @@ describe('WithdrawUseCase', () => {
     });
 
     it('残高ゼロのアカウントからの出金は拒否される', async () => {
-      const account = await createAccountUseCase.execute({});
+      const account = await createAccountUseCase.execute({ initialBalance: 0 });
 
       await expect(
         useCase.execute({ accountId: account.id, amount: 1 })

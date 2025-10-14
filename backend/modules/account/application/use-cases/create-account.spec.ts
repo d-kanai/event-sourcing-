@@ -36,8 +36,8 @@ describe('CreateAccountUseCase', () => {
   });
 
   describe('execute', () => {
-    it('初期残高を指定しない場合、残高ゼロのアカウントを作成できる', async () => {
-      const result = await useCase.execute({});
+    it('残高ゼロのアカウントを作成できる', async () => {
+      const result = await useCase.execute({ initialBalance: 0 });
 
       expect(result).toMatchObject({
         id: expect.any(String),
