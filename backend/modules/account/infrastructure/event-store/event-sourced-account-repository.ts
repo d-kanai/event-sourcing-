@@ -4,11 +4,15 @@ import { DomainEvent } from '../../domain/events/domain-event';
 import { Balance } from '../../domain/value-objects/balance';
 import { AccountStatus } from '../../domain/value-objects/account-status';
 import { AccountProjection } from '../projections/account-projection';
-import { InMemoryEventStore } from './in-memory-event-store';
+
+export interface EventStore {
+  appendEvents(streamName: string, events: DomainEvent[]): Promise<void>;
+  readEvents(streamName: string): Promise<DomainEvent[]>;
+}
 
 export class EventSourcedAccountRepository {
   constructor(
-    private readonly eventStore: InMemoryEventStore,
+    private readonly eventStore: EventStore,
     private readonly projection?: AccountProjection
   ) {}
 

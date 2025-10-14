@@ -1,9 +1,10 @@
 import { DomainEvent } from '../../domain/events/domain-event';
+import { EventStore } from './event-sourced-account-repository';
 
 /**
  * In-memory event store for testing
  */
-export class InMemoryEventStore {
+export class InMemoryEventStore implements EventStore {
   private streams: Map<string, DomainEvent[]> = new Map();
 
   async appendEvents(streamName: string, events: DomainEvent[]): Promise<void> {

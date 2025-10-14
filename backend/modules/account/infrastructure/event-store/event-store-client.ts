@@ -5,8 +5,12 @@ import {
   ResolvedEvent,
 } from '@eventstore/db-client';
 import { DomainEvent } from '../../domain/events/domain-event';
+import { EventStore } from './event-sourced-account-repository';
 
-export class EventStoreClient {
+/**
+ * EventStoreDB client implementation for production use
+ */
+export class EventStoreClient implements EventStore {
   private client: EventStoreDBClient;
 
   constructor(connectionString?: string) {
@@ -15,11 +19,8 @@ export class EventStoreClient {
     );
   }
 
-  async appendEvents(
-    streamName: string,
-    events: DomainEvent[],
-    expectedRevision?: bigint
-  ): Promise<void> {
+  async appendEvents(streamName: string, events: DomainEvent[]): Promise<void> {
+    const expectedRevision = 'any'; // For now, use 'any' for simplicity
     const jsonEvents = events.map((event) =>
       jsonEvent({
         type: event.eventType,
@@ -35,7 +36,7 @@ export class EventStoreClient {
     );
 
     await this.client.appendToStream(streamName, jsonEvents, {
-      expectedRevision: expectedRevision ?? 'any',
+      expectedRevision: expectedRevision,
     });
   }
 
