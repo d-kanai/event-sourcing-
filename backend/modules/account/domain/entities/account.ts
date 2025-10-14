@@ -75,7 +75,6 @@ export class Account extends AggregateRoot {
       new MoneyDepositedEvent(this._id.getValue(), {
         accountId: this._id.getValue(),
         amount: amount,
-        balanceAfter: this._balance.getValue(),
         depositedAt: new Date().toISOString(),
       })
     );
@@ -91,7 +90,6 @@ export class Account extends AggregateRoot {
       new MoneyWithdrawnEvent(this._id.getValue(), {
         accountId: this._id.getValue(),
         amount: amount,
-        balanceAfter: this._balance.getValue(),
         withdrawnAt: new Date().toISOString(),
       })
     );

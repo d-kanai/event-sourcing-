@@ -4,10 +4,15 @@ import { Balance } from '../value-objects/balance';
 import { AccountStatus } from '../value-objects/account-status';
 import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { EventType } from '../events/event-type';
+import { AccountSnapshot } from '../snapshots/account-snapshot';
 
 /**
  * Rehydrator for reconstructing Account aggregates from events
  * Encapsulates event rehydration logic separate from business logic
+ *
+ * Supports Pure Event Sourcing + Snapshot pattern:
+ * - Without snapshot: Replay all events from beginning
+ * - With snapshot: Start from snapshot + replay events after snapshot
  *
  * This class is the counterpart to AccountFactory:
  * - AccountFactory: Creates new accounts (forward flow)
@@ -15,7 +20,7 @@ import { EventType } from '../events/event-type';
  */
 export class AccountRehydrator {
   /**
-   * Rehydrate account from event stream
+   * Rehydrate account from event stream (without snapshot)
    *
    * @param events - Ordered list of domain events for the account
    * @returns Rehydrated account instance
@@ -49,8 +54,62 @@ export class AccountRehydrator {
   }
 
   /**
+   * Rehydrate account using snapshot + events
+   * Performance optimization: Start from snapshot instead of replaying all events
+   *
+   * Example: 10,000 events total
+   * - Without snapshot: Replay all 10,000 events
+   * - With snapshot at 9,900: Load snapshot + replay 100 events
+   *
+   * @param snapshot - Latest snapshot (state at specific version)
+   * @param eventsAfterSnapshot - Events that occurred after the snapshot
+   * @returns Rehydrated account instance
+   */
+  static rehydrateFromSnapshot(
+    snapshot: AccountSnapshot,
+    eventsAfterSnapshot: DomainEvent[]
+  ): Account {
+    // Reconstruct account from snapshot
+    const account = Account.reconstruct(
+      AccountId.create(snapshot.accountId),
+      Balance.create(snapshot.balance),
+      AccountStatus.create(snapshot.status),
+      new Date(snapshot.createdAt)
+    );
+
+    // Replay events that occurred after snapshot
+    for (const event of eventsAfterSnapshot) {
+      this.replayEvent(account, event);
+    }
+
+    return account;
+  }
+
+  /**
+   * Create snapshot from current account state
+   * Should be called periodically (e.g., every 100 events)
+   *
+   * @param account - Account to snapshot
+   * @param version - Event version (number of events applied)
+   * @returns Snapshot of current state
+   */
+  static createSnapshot(account: Account, version: number): AccountSnapshot {
+    return AccountSnapshot.create(
+      account.id.getValue(),
+      account.balance.getValue(),
+      account.status.getValue(),
+      account.createdAt.toISOString(),
+      version
+    );
+  }
+
+  /**
    * Replay single event to account state
-   * Encapsulates the knowledge of how each event type affects state
+   * Pure Event Sourcing: Calculate state from facts (amount), not from stored results (balanceAfter)
+   * This allows for:
+   * - Restoring to any point in time accurately
+   * - Adapting to business rule changes
+   * - Maintaining complete audit trail
    *
    * @param account - Account instance to mutate
    * @param event - Domain event to replay
@@ -60,11 +119,15 @@ export class AccountRehydrator {
 
     switch (event.eventType) {
       case EventType.MONEY_DEPOSITED:
-        account.applyBalanceChange(Balance.create(eventData.balanceAfter));
+        // Calculate new balance from current balance + amount
+        const newBalanceAfterDeposit = account.balance.add(eventData.amount);
+        account.applyBalanceChange(newBalanceAfterDeposit);
         break;
 
       case EventType.MONEY_WITHDRAWN:
-        account.applyBalanceChange(Balance.create(eventData.balanceAfter));
+        // Calculate new balance from current balance - amount
+        const newBalanceAfterWithdraw = account.balance.subtract(eventData.amount);
+        account.applyBalanceChange(newBalanceAfterWithdraw);
         break;
 
       case EventType.ACCOUNT_SUSPENDED:

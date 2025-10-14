@@ -21,7 +21,6 @@ export class AccountCreatedEvent extends BaseDomainEvent {
 export interface MoneyDepositedData {
   accountId: string;
   amount: number;
-  balanceAfter: number;
   depositedAt: string;
 }
 
@@ -38,7 +37,6 @@ export class MoneyDepositedEvent extends BaseDomainEvent {
 export interface MoneyWithdrawnData {
   accountId: string;
   amount: number;
-  balanceAfter: number;
   withdrawnAt: string;
 }
 
