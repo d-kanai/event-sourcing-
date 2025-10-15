@@ -3,14 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Account {
-  id        String   @id @default(uuid())
+  id        String   @id
   userId    String   @map("user_id")
-  balance   Decimal  @db.Decimal(19, 4)
+  balance   Float
   status    String
   createdAt DateTime @default(now()) @map("created_at")
 

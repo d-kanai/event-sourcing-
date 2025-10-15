@@ -25,10 +25,10 @@ export class UserRepository extends BaseEventSourcedRepository<
   }
 
   async save(user: User): Promise<void> {
-    await super.save(user);
-
     const events = user.getUncommittedEvents();
     const firestore = getFirestore();
+
+    await super.save(user);
 
     for (const event of events) {
       await firestore.collection('events').add({
@@ -38,7 +38,7 @@ export class UserRepository extends BaseEventSourcedRepository<
         aggregateType: event.aggregateType,
         occurredAt: event.occurredAt,
         data: event.data,
-        metadata: event.metadata,
+        metadata: event.metadata || {},
         processed: false,
         createdAt: new Date(),
       });

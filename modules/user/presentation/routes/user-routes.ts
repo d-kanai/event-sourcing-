@@ -10,6 +10,7 @@ import { UserReadRepository } from '../../infrastructure/repositories/user-read-
 import { RegisterUserCommand } from '../../application/commands/register-user-command';
 import { VerifyUserCommand } from '../../application/commands/verify-user-command';
 import { GetUserQuery } from '../../application/queries/get-user-query';
+import { UserProjectionRegistry } from '../../infrastructure/projections/user-projection-registry';
 
 const userRoutes = new Hono();
 
