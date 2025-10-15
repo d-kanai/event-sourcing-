@@ -1,12 +1,15 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/backend'],
+  roots: ['<rootDir>/modules', '<rootDir>/shared'],
   testMatch: ['**/*.spec.ts'],
   collectCoverageFrom: [
-    'backend/**/*.ts',
-    '!backend/**/*.spec.ts',
-    '!backend/**/*.d.ts',
+    'modules/**/*.ts',
+    'shared/**/*.ts',
+    '!modules/**/*.spec.ts',
+    '!shared/**/*.spec.ts',
+    '!modules/**/*.d.ts',
+    '!shared/**/*.d.ts',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {

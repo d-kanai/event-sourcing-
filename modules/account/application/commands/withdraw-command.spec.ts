@@ -1,0 +1,215 @@
+import { PrismaClient } from '../../infrastructure/prisma/generated/test-client';
+import {
+  setupTestDatabase,
+  teardownTestDatabase,
+  cleanupTestDatabase,
+} from '../../infrastructure/prisma/test-helper';
+import { WithdrawCommand } from './withdraw-command';
+import { CreateAccountCommand } from './create-account-command';
+import { DepositCommand } from './deposit-command';
+import { Firestore } from '@google-cloud/firestore';
+import {
+  setupFirestoreTest,
+  cleanupFirestoreTest,
+  teardownFirestoreTest,
+} from '../../../../shared/infrastructure/event-store/firestore-test-helper';
+import {
+  FirestoreEventStore,
+  FirestoreEventStoreAdapter,
+} from '../../../../shared/infrastructure/event-store';
+import { AccountRepository } from '../../infrastructure/repositories/account-repository';
+import { AccountReadRepository } from '../../infrastructure/repositories/account-read-repository';
+import { AccountProjectionRegistry } from '../../infrastructure/projections/account-projection-registry';
+import { AccountId } from '../../domain/value-objects/account-id';
+
+describe('WithdrawCommand', () => {
+  let prisma: PrismaClient;
+  let firestore: Firestore;
+  let firestoreEventStore: FirestoreEventStore;
+  let eventStoreAdapter: FirestoreEventStoreAdapter;
+  let repository: AccountRepository;
+  let readRepository: AccountReadRepository;
+  let useCase: WithdrawCommand;
+  let createAccountCommand: CreateAccountCommand;
+  let depositCommand: DepositCommand;
+
+  beforeAll(async () => {
+    prisma = await setupTestDatabase();
+    firestore = await setupFirestoreTest();
+    firestoreEventStore = new FirestoreEventStore(firestore);
+  });
+
+  beforeEach(() => {
+    eventStoreAdapter = new FirestoreEventStoreAdapter(firestoreEventStore, 'Account');
+    const repositoryForProjections = new AccountRepository(eventStoreAdapter);
+    const projectionRegistry = new AccountProjectionRegistry(prisma as any, repositoryForProjections);
+    repository = new AccountRepository(eventStoreAdapter, projectionRegistry);
+    readRepository = new AccountReadRepository(prisma as any);
+    // WithdrawCommand now returns aggregate state directly
+    useCase = new WithdrawCommand(repository);
+    createAccountCommand = new CreateAccountCommand(repository);
+    depositCommand = new DepositCommand(repository);
+  });
+
+  afterAll(async () => {
+    await teardownTestDatabase(prisma);
+    await teardownFirestoreTest(firestore);
+  });
+
+  afterEach(async () => {
+    await cleanupFirestoreTest(firestore);
+    await cleanupTestDatabase(prisma);
+  });
+
+  describe('execute', () => {
+    it('アカウントから金額を出金できる', async () => {
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance: 1000 });
+
+      const result = await useCase.execute({
+        accountId: account.id,
+        amount: 300,
+      });
+
+      expect(result.balance).toBe(700);
+      expect(result.id).toBe(account.id);
+      expect(result.status).toBe('ACTIVE');
+
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccount!.balance).toBe(700);
+    });
+
+    it('残高全額を出金できる', async () => {
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance: 500 });
+
+      const result = await useCase.execute({
+        accountId: account.id,
+        amount: 500,
+      });
+
+      expect(result.balance).toBe(0);
+
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccount!.balance).toBe(0);
+    });
+
+    it('残高を超える出金は拒否される', async () => {
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance: 1000 });
+
+      await expect(
+        useCase.execute({ accountId: account.id, amount: 1001 })
+      ).rejects.toThrow('Insufficient balance');
+
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccount!.balance).toBe(1000);
+    });
+
+    it('残高ゼロのアカウントからの出金は拒否される', async () => {
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance: 0 });
+
+      await expect(
+        useCase.execute({ accountId: account.id, amount: 1 })
+      ).rejects.toThrow('Insufficient balance');
+
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccount!.balance).toBe(0);
+    });
+
+    it('負の出金額は拒否される', async () => {
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance: 1000 });
+
+      await expect(
+        useCase.execute({ accountId: account.id, amount: -100 })
+      ).rejects.toThrow('Amount to subtract must be non-negative');
+
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccount!.balance).toBe(1000);
+    });
+
+    it('存在しないアカウントの場合エラーを投げる', async () => {
+      const fakeId = '550e8400-e29b-41d4-a716-446655440000';
+
+      await expect(
+        useCase.execute({ accountId: fakeId, amount: 100 })
+      ).rejects.toThrow('Account not found');
+    });
+
+    it('複数回の出金を正しく処理できる', async () => {
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance: 1000 });
+
+      await useCase.execute({ accountId: account.id, amount: 100 });
+      await useCase.execute({ accountId: account.id, amount: 200 });
+      const result = await useCase.execute({ accountId: account.id, amount: 150 });
+
+      expect(result.balance).toBe(550);
+
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccount!.balance).toBe(550);
+    });
+
+    it('入金と出金を組み合わせて処理できる', async () => {
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance: 500 });
+
+      await depositCommand.execute({ accountId: account.id, amount: 300 });
+      await useCase.execute({ accountId: account.id, amount: 200 });
+      await depositCommand.execute({ accountId: account.id, amount: 100 });
+      const result = await useCase.execute({ accountId: account.id, amount: 400 });
+
+      expect(result.balance).toBe(300);
+
+      const dbAccount = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccount!.balance).toBe(300);
+    });
+
+    it('出金コマンド実行後にRDBにprojectionが正しく反映される', async () => {
+      const initialBalance = 2000;
+      const withdrawAmount = 800;
+      const expectedBalance = initialBalance - withdrawAmount;
+
+      // アカウント作成
+      const account = await createAccountCommand.execute({ userId: "test-user", initialBalance });
+
+      // 出金前のRDB状態を確認
+      const dbAccountBefore = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+      expect(dbAccountBefore!.balance).toBe(initialBalance);
+
+      // 出金コマンド実行
+      const result = await useCase.execute({
+        accountId: account.id,
+        amount: withdrawAmount,
+      });
+
+      // 出金後のRDB状態を確認
+      const dbAccountAfter = await prisma.account.findUnique({
+        where: { id: account.id },
+      });
+
+      // Projectionが正しく動作していることを確認
+      expect(dbAccountAfter).toBeDefined();
+      expect(dbAccountAfter!.balance).toBe(expectedBalance);
+      expect(dbAccountAfter!.status).toBe('ACTIVE');
+
+      // Event Storeから再生した状態とRDBの状態が一致することを確認
+      const accountId = AccountId.create(account.id);
+      const replayedAccount = await repository.replayById(accountId);
+      expect(replayedAccount).toBeDefined();
+      expect(dbAccountAfter!.balance).toBe(replayedAccount!.balance.getValue());
+      expect(dbAccountAfter!.balance).toBe(result.balance);
+    });
+  });
+});
