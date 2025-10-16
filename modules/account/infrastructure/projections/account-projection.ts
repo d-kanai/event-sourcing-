@@ -5,7 +5,11 @@ import { AggregateProjection } from '../../../../shared/infrastructure/projectio
 import { Account } from '../../domain/entities/account';
 import { AccountId } from '../../domain/value-objects/account-id';
 
-export class AccountProjection extends AggregateProjection<Account, AccountId> {
+export class AccountProjection extends AggregateProjection<
+  Account,
+  AccountId,
+  PrismaClient
+> {
   private readonly supportedEventTypes = [
     AccountEventType.ACCOUNT_CREATED,
     AccountEventType.MONEY_DEPOSITED,

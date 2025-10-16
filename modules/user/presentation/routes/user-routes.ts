@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/user-client';
 import { getFirestore } from '../../../../shared/infrastructure/event-store/firestore-client';
 import { FirestoreEventStore } from '../../../../shared/infrastructure/event-store/firestore-event-store';
 import { FirestoreEventStoreAdapter } from '../../../../shared/infrastructure/event-store/firestore-event-store-adapter';

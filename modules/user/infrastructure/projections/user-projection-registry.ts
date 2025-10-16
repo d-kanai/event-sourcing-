@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/user-client';
 import { ProjectionRegistry } from '../../../../shared/infrastructure/projections';
 import { UserProjection } from './user-projection';
 import { UserRepository } from '../repositories/user-repository';

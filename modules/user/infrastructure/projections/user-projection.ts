@@ -1,11 +1,15 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/user-client';
 import { DomainEvent } from '../../../../shared/domain/events/domain-event';
 import { UserEventType } from '../../domain/events/user-event-type';
 import { AggregateProjection } from '../../../../shared/infrastructure/projections';
 import { User } from '../../domain/entities/user';
 import { UserId } from '../../domain/value-objects/user-id';
 
-export class UserProjection extends AggregateProjection<User, UserId> {
+export class UserProjection extends AggregateProjection<
+  User,
+  UserId,
+  PrismaClient
+> {
   private readonly supportedEventTypes = [
     UserEventType.USER_CREATED,
     UserEventType.USER_VERIFIED,

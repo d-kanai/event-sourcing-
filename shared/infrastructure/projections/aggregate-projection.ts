@@ -1,11 +1,14 @@
-import { PrismaClient } from '@prisma/client';
 import { DomainEvent } from '../../domain/events/domain-event';
 import { AggregateRoot } from '../../domain/entities/aggregate-root';
 import { Projection } from './projection';
 
-export abstract class AggregateProjection<TAggregate extends AggregateRoot, TId> implements Projection {
+export abstract class AggregateProjection<
+  TAggregate extends AggregateRoot,
+  TId,
+  TPrisma = unknown
+> implements Projection {
   constructor(
-    protected readonly prisma: PrismaClient,
+    protected readonly prisma: TPrisma,
     protected readonly replayById: (id: TId) => Promise<TAggregate | null>
   ) {}
 
