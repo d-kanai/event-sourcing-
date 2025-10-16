@@ -4,11 +4,11 @@ services:
   firestore:
     image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
     container_name: firestore-emulator
-    command: gcloud beta emulators firestore start --host-port=0.0.0.0:8080
+    command: gcloud beta emulators firestore start --host-port=0.0.0.0:8085
     environment:
       - FIRESTORE_PROJECT_ID=event-sourcing-local
     ports:
-      - "8080:8080"
+      - "8085:8085"
     networks:
       - event-sourcing-network
 

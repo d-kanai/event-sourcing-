@@ -4,7 +4,8 @@ import { getFirestore } from './firestore-client';
 let firestoreInstance: Firestore | null = null;
 
 export async function setupFirestoreTest(): Promise<Firestore> {
-  process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
+  const host = process.env.FIRESTORE_EMULATOR_HOST ?? 'localhost:8085';
+  process.env.FIRESTORE_EMULATOR_HOST = host;
   process.env.FIRESTORE_PROJECT_ID = 'event-sourcing-local';
 
   firestoreInstance = getFirestore();
