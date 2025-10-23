@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Overview
 
-## Getting Started
+Customer-facing frontend powered by Next.js App Router, Tailwind CSS v4, TanStack Query/Form, and Zod.  
+Design tokens are split into **primitive** (raw values) and **semantic** (usage-oriented) layers and exposed to Tailwind via CSS variables.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+src/
+├─ app/                      # Next.js routes
+├─ design-system/
+│  ├─ primitive/             # Raw tokens (colors, spacing, radius, etc.)
+│  ├─ semantic/              # Mappings to usage contexts
+│  └─ theme.css              # CSS variables + Tailwind @theme definitions
+└─ ui/
+   └─ atoms/                 # Baseline reusable UI components
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The playground page at `/` demonstrates the current atom components with TanStack Form validation.
 
-## Learn More
+## Figma Token Sync (optional)
 
-To learn more about Next.js, take a look at the following resources:
+Tokens can be pulled from Figma variables using the Variables API. Copy `.env.local.example` to `.env.local`, fill the values, then run:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run tokens:pull
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Environment variables supported (read from `.env.local` and `.env`):
 
-## Deploy on Vercel
+```
+# OAuth token (preferred – enables Variables API)
+FIGMA_ACCESS_TOKEN=xxx
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# or legacy PAT (limited, Variables API requires OAuth scope)
+FIGMA_PERSONAL_ACCESS_TOKEN=xxx
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+FIGMA_FILE_KEY=yyyy
+# Optional: FIGMA_VARIABLE_COLLECTION_ID=zzzz
+```
+
+The script writes the raw payload to `src/design-system/primitive/generated/figma-variables.json`.  
+Map the values into the TypeScript primitive layer to keep the theme in sync.
+
+### Local OAuth helper
+
+When running locally, the callback endpoint `http://localhost:3000/api/figma/oauth/callback` exchanges the authorization code for tokens and echoes the JSON response.  
+Configure `FIGMA_CLIENT_ID`, `FIGMA_CLIENT_SECRET`, and `FIGMA_REDIRECT_URI` (defaults to the URL above) in `.env.local`, then:
+
+1. Open  
+   ```
+   https://www.figma.com/oauth?client_id=YOUR_CLIENT_ID&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Ffigma%2Foauth%2Fcallback&scope=file_variables%3Aread&state=figma-tokens&response_type=code
+   ```
+2. Approve access → you will be redirected back to the callback route and see the access / refresh tokens.
+3. Copy the `access_token` into `FIGMA_ACCESS_TOKEN` and, if required, store the `refresh_token` securely for future refreshes.
+
+### File snapshot (non-Enterprise fallback)
+
+For plans without Variables API access, you can still capture the document, components, and styles using:
+
+```bash
+npm run figma:snapshot
+```
+
+This script calls regular Figma REST endpoints (document/components/styles) and saves the result to `src/design-system/primitive/generated/figma-file-snapshot.json`. Use it to inspect template structure or as a starting point for manual token extraction.
+
+## Linting
+
+```bash
+npm run lint
+```

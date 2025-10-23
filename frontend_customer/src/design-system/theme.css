@@ -1,0 +1,143 @@
+:root {
+  /* Primitive colors */
+  --ds-color-primitive-neutral-0: #ffffff;
+  --ds-color-primitive-neutral-50: #f8fafc;
+  --ds-color-primitive-neutral-100: #f1f5f9;
+  --ds-color-primitive-neutral-200: #e2e8f0;
+  --ds-color-primitive-neutral-300: #cbd5f5;
+  --ds-color-primitive-neutral-400: #94a3b8;
+  --ds-color-primitive-neutral-500: #64748b;
+  --ds-color-primitive-neutral-600: #475569;
+  --ds-color-primitive-neutral-700: #334155;
+  --ds-color-primitive-neutral-800: #1e293b;
+  --ds-color-primitive-neutral-900: #0f172a;
+
+  --ds-color-primitive-brand-50: #f5f3ff;
+  --ds-color-primitive-brand-100: #ede9fe;
+  --ds-color-primitive-brand-200: #ddd6fe;
+  --ds-color-primitive-brand-300: #c4b5fd;
+  --ds-color-primitive-brand-400: #a78bfa;
+  --ds-color-primitive-brand-500: #8b5cf6;
+  --ds-color-primitive-brand-600: #7c3aed;
+  --ds-color-primitive-brand-700: #6d28d9;
+  --ds-color-primitive-brand-800: #5b21b6;
+  --ds-color-primitive-brand-900: #4c1d95;
+
+  --ds-color-primitive-success-500: #10b981;
+  --ds-color-primitive-warning-500: #f59e0b;
+  --ds-color-primitive-danger-500: #ef4444;
+
+  /* Primitive spacing */
+  --ds-space-0: 0rem;
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-5: 1.25rem;
+  --ds-space-6: 1.5rem;
+  --ds-space-8: 2rem;
+  --ds-space-10: 2.5rem;
+  --ds-space-12: 3rem;
+  --ds-space-16: 4rem;
+  --ds-space-20: 5rem;
+  --ds-space-24: 6rem;
+  --ds-space-32: 8rem;
+
+  /* Primitive radius */
+  --ds-radius-xs: 0.25rem;
+  --ds-radius-sm: 0.375rem;
+  --ds-radius-md: 0.5rem;
+  --ds-radius-lg: 0.75rem;
+  --ds-radius-xl: 1rem;
+  --ds-radius-pill: 9999px;
+
+  /* Semantic colors (light) */
+  --ds-color-semantic-surface-page: var(--ds-color-primitive-neutral-50);
+  --ds-color-semantic-surface-card: var(--ds-color-primitive-neutral-0);
+  --ds-color-semantic-surface-overlay: rgba(15, 23, 42, 0.08);
+  --ds-color-semantic-surface-brand: var(--ds-color-primitive-brand-600);
+
+  --ds-color-semantic-text-primary: var(--ds-color-primitive-neutral-900);
+  --ds-color-semantic-text-secondary: var(--ds-color-primitive-neutral-600);
+  --ds-color-semantic-text-inverse: var(--ds-color-primitive-neutral-50);
+  --ds-color-semantic-text-on-brand: var(--ds-color-primitive-neutral-50);
+
+  --ds-color-semantic-border-subtle: var(--ds-color-primitive-neutral-200);
+  --ds-color-semantic-border-strong: var(--ds-color-primitive-neutral-400);
+  --ds-color-semantic-border-focus: var(--ds-color-primitive-brand-500);
+
+  --ds-color-semantic-status-success: var(--ds-color-primitive-success-500);
+  --ds-color-semantic-status-warning: var(--ds-color-primitive-warning-500);
+  --ds-color-semantic-status-danger: var(--ds-color-primitive-danger-500);
+
+  /* Semantic spacing */
+  --ds-space-page-x: var(--ds-space-6);
+  --ds-space-page-y: var(--ds-space-8);
+  --ds-space-section-gap: var(--ds-space-10);
+  --ds-space-element-gap: var(--ds-space-4);
+  --ds-space-control-padding-x: var(--ds-space-4);
+  --ds-space-control-padding-y: var(--ds-space-3);
+
+  /* Shadows */
+  --ds-shadow-card: 0 18px 30px -12px rgba(15, 23, 42, 0.12);
+  --ds-shadow-popover: 0 24px 50px -24px rgba(15, 23, 42, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ds-color-semantic-surface-page: var(--ds-color-primitive-neutral-900);
+    --ds-color-semantic-surface-card: var(--ds-color-primitive-neutral-800);
+    --ds-color-semantic-surface-overlay: rgba(15, 23, 42, 0.55);
+    --ds-color-semantic-text-primary: var(--ds-color-primitive-neutral-50);
+    --ds-color-semantic-text-secondary: var(--ds-color-primitive-neutral-400);
+    --ds-color-semantic-border-subtle: rgba(148, 163, 184, 0.4);
+    --ds-color-semantic-border-strong: rgba(148, 163, 184, 0.6);
+  }
+}
+
+[data-theme="dark"] {
+  --ds-color-semantic-surface-page: var(--ds-color-primitive-neutral-900);
+  --ds-color-semantic-surface-card: var(--ds-color-primitive-neutral-800);
+  --ds-color-semantic-surface-overlay: rgba(15, 23, 42, 0.55);
+  --ds-color-semantic-text-primary: var(--ds-color-primitive-neutral-50);
+  --ds-color-semantic-text-secondary: var(--ds-color-primitive-neutral-400);
+  --ds-color-semantic-border-subtle: rgba(148, 163, 184, 0.4);
+  --ds-color-semantic-border-strong: rgba(148, 163, 184, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--ds-color-semantic-surface-page);
+  --color-foreground: var(--ds-color-semantic-text-primary);
+  --color-surface-card: var(--ds-color-semantic-surface-card);
+  --color-surface-overlay: var(--ds-color-semantic-surface-overlay);
+  --color-surface-brand: var(--ds-color-semantic-surface-brand);
+  --color-text-secondary: var(--ds-color-semantic-text-secondary);
+  --color-text-inverse: var(--ds-color-semantic-text-inverse);
+  --color-text-on-brand: var(--ds-color-semantic-text-on-brand);
+  --color-border-subtle: var(--ds-color-semantic-border-subtle);
+  --color-border-strong: var(--ds-color-semantic-border-strong);
+  --color-border-focus: var(--ds-color-semantic-border-focus);
+  --color-status-success: var(--ds-color-semantic-status-success);
+  --color-status-warning: var(--ds-color-semantic-status-warning);
+  --color-status-danger: var(--ds-color-semantic-status-danger);
+
+  --spacing-page-x: var(--ds-space-page-x);
+  --spacing-page-y: var(--ds-space-page-y);
+  --spacing-section-gap: var(--ds-space-section-gap);
+  --spacing-element-gap: var(--ds-space-element-gap);
+  --spacing-control-x: var(--ds-space-control-padding-x);
+  --spacing-control-y: var(--ds-space-control-padding-y);
+
+  --radius-xs: var(--ds-radius-xs);
+  --radius-sm: var(--ds-radius-sm);
+  --radius-md: var(--ds-radius-md);
+  --radius-lg: var(--ds-radius-lg);
+  --radius-xl: var(--ds-radius-xl);
+  --radius-pill: var(--ds-radius-pill);
+
+  --shadow-card: var(--ds-shadow-card);
+  --shadow-popover: var(--ds-shadow-popover);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}

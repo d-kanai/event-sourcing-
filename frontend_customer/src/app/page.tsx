@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
+import { Button } from "@/ui/atoms/button";
+import { Input } from "@/ui/atoms/input";
+import { Label } from "@/ui/atoms/label";
 
 const profileSchema = z.object({
   name: z.string().min(1, "名前は必須です"),
@@ -34,18 +37,23 @@ export default function Home() {
   });
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-12 bg-white px-6 py-16 text-zinc-900 sm:px-10 lg:px-16">
-      <section className="space-y-3">
-        <h1 className="text-3xl font-semibold">Customer Frontend</h1>
-        <p className="text-base text-zinc-600">
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-[var(--spacing-section-gap)] bg-background px-[var(--spacing-page-x)] py-[var(--spacing-page-y)] text-foreground">
+      <section className="space-y-[var(--ds-space-element-gap)]">
+        <div className="flex flex-col gap-2">
+          <span className="inline-flex w-fit rounded-pill bg-surface-overlay px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+            Design system baseline
+          </span>
+          <h1 className="text-3xl font-semibold">Customer Frontend</h1>
+        </div>
+        <p className="text-base text-text-secondary">
           {greetingQuery.isLoading && "データを取得しています..."}
           {greetingQuery.isSuccess && greetingQuery.data}
         </p>
       </section>
 
-      <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 shadow-sm">
+      <section className="rounded-lg border border-border-subtle bg-surface-card p-6 shadow-card">
         <form
-          className="space-y-6"
+          className="flex flex-col gap-[var(--ds-space-element-gap)]"
           onSubmit={(event) => {
             event.preventDefault();
             void form.handleSubmit();
@@ -63,12 +71,10 @@ export default function Home() {
             }}
           >
             {(field) => (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-zinc-700">
-                  お名前
-                </label>
-                <input
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-base focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+              <div className="flex flex-col gap-2">
+                <Label htmlFor={field.name}>お名前</Label>
+                <Input
+                  id={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(event) =>
@@ -78,7 +84,7 @@ export default function Home() {
                   autoComplete="name"
                 />
                 {field.state.meta.errors?.length ? (
-                  <p className="text-sm text-red-500">
+                  <p className="text-sm text-status-danger">
                     {field.state.meta.errors[0]}
                   </p>
                 ) : null}
@@ -98,12 +104,10 @@ export default function Home() {
             }}
           >
             {(field) => (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-zinc-700">
-                  メールアドレス
-                </label>
-                <input
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-base focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+              <div className="flex flex-col gap-2">
+                <Label htmlFor={field.name}>メールアドレス</Label>
+                <Input
+                  id={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(event) =>
@@ -114,7 +118,7 @@ export default function Home() {
                   type="email"
                 />
                 {field.state.meta.errors?.length ? (
-                  <p className="text-sm text-red-500">
+                  <p className="text-sm text-status-danger">
                     {field.state.meta.errors[0]}
                   </p>
                 ) : null}
@@ -122,17 +126,12 @@ export default function Home() {
             )}
           </form.Field>
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-zinc-900 px-4 py-2 text-base font-semibold text-white transition hover:bg-zinc-700"
-          >
-            プロフィールを送信
-          </button>
+          <Button type="submit">プロフィールを送信</Button>
         </form>
 
         {submittedProfile ? (
-          <div className="mt-6 space-y-1 rounded-lg bg-white p-4 text-sm text-zinc-700">
-            <p className="font-medium">送信内容</p>
+          <div className="mt-6 rounded-lg border border-border-subtle bg-background/60 p-4 text-sm text-text-secondary">
+            <p className="font-medium text-foreground">送信内容</p>
             <p>お名前: {submittedProfile.name}</p>
             <p>メール: {submittedProfile.email}</p>
           </div>
