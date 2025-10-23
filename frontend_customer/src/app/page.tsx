@@ -5,11 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Button } from "@/ui/atoms/button";
+import { Card } from "@/ui/atoms/card";
 import { Checkbox } from "@/ui/atoms/checkbox";
+import { Divider } from "@/ui/atoms/divider";
 import { Input } from "@/ui/atoms/input";
 import { Label } from "@/ui/atoms/label";
 import { Radio } from "@/ui/atoms/radio";
 import { Select } from "@/ui/atoms/select";
+import { Stack } from "@/ui/atoms/stack";
 import { Textarea } from "@/ui/atoms/textarea";
 
 const profileSchema = z.object({
@@ -74,7 +77,10 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="rounded-lg border border-border-subtle bg-surface-card p-6 shadow-card">
+      <Card
+        title="プロフィール設定"
+        description="フォーム系 atom コンポーネントがデザインシステムのトークンで動作するサンプルです。"
+      >
         <form
           className="flex flex-col gap-[var(--ds-space-element-gap)]"
           onSubmit={(event) => {
@@ -294,7 +300,63 @@ export default function Home() {
             </p>
           </div>
         ) : null}
-      </section>
+      </Card>
+
+      <Stack gap="lg">
+        <Card
+          title="カードレイアウト"
+          description="Stack と Divider を使い分けることで、Figma のセクションに近いレイアウトを再利用できます。"
+          footer={
+            <div className="flex justify-between text-sm text-text-secondary">
+              <span>最終更新: 2025/10/23</span>
+              <Button variant="secondary">詳細を見る</Button>
+            </div>
+          }
+        >
+          <Stack gap="sm">
+            <p className="text-sm text-text-secondary">
+              Card はヘッダー／フッターの有無を柔軟に切り替えられるシンプルなコンテナです。
+            </p>
+            <Divider />
+            <Stack direction="horizontal" gap="sm" className="items-center">
+              <div className="h-10 w-10 rounded-full bg-surface-brand/20" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Chakra DS</p>
+                <p className="text-xs text-text-secondary">
+                  Next.js + TanStack Query/Form + Tailwind v4
+                </p>
+              </div>
+            </Stack>
+          </Stack>
+        </Card>
+
+        <Card title="セクション例">
+          <Stack gap="sm">
+            <p className="text-sm text-text-secondary">
+              Stack コンポーネントは縦横方向とギャップだけを統一的に管理するラッパーです。
+            </p>
+            <Stack direction="horizontal" gap="md" className="rounded-lg bg-surface-overlay/40 p-4">
+              <Stack className="w-1/2">
+                <h3 className="text-base font-semibold text-foreground">
+                  左カラム
+                </h3>
+                <p className="text-sm text-text-secondary">
+                  フォーム、テーブル、チャートなどを配置。
+                </p>
+              </Stack>
+              <Divider orientation="vertical" />
+              <Stack className="w-1/2">
+                <h3 className="text-base font-semibold text-foreground">
+                  右カラム
+                </h3>
+                <p className="text-sm text-text-secondary">
+                  サマリーやアクションの領域として活用。
+                </p>
+              </Stack>
+            </Stack>
+          </Stack>
+        </Card>
+      </Stack>
     </main>
   );
 }
