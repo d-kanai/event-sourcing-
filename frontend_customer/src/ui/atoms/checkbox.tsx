@@ -28,18 +28,17 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           className,
         )}
       >
-        <span className="relative flex h-5 w-5 items-center justify-center">
-          <input
-            ref={ref}
-            id={inputId}
-            type="checkbox"
-            className="peer absolute h-full w-full cursor-pointer appearance-none rounded-[var(--radius-sm)] border border-border-subtle bg-surface-card transition duration-150 focus-visible:border-border-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus/40 disabled:cursor-not-allowed"
-            {...props}
-          />
-          <span className="pointer-events-none flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] bg-surface-brand text-text-on-brand opacity-0 transition duration-150 peer-checked:opacity-100">
-            ✓
-          </span>
-        </span>
+        <input
+          ref={ref}
+          id={inputId}
+          type="checkbox"
+          className={cn(
+            "mt-0.5 h-5 w-5 rounded-[var(--radius-sm)] border border-border-subtle text-surface-brand transition duration-150",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus/40",
+            "accent-surface-brand disabled:cursor-not-allowed",
+          )}
+          {...props}
+        />
 
         <span className="flex flex-col gap-1">
           {label ? <span className="font-medium">{label}</span> : null}
