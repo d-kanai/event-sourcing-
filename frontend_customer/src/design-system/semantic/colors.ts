@@ -22,6 +22,7 @@ export const semanticColors = {
     success: primitiveColors.success[500],
     warning: primitiveColors.warning[500],
     danger: primitiveColors.danger[500],
+    info: primitiveColors.blue[500],
   },
 } as const;
 

@@ -1,31 +1,33 @@
 :root {
   /* Primitive colors */
   --ds-color-primitive-neutral-0: #ffffff;
-  --ds-color-primitive-neutral-50: #f8fafc;
-  --ds-color-primitive-neutral-100: #f1f5f9;
+  --ds-color-primitive-neutral-50: #f7fafc;
+  --ds-color-primitive-neutral-100: #edf2f7;
   --ds-color-primitive-neutral-200: #e2e8f0;
-  --ds-color-primitive-neutral-300: #cbd5f5;
-  --ds-color-primitive-neutral-400: #94a3b8;
-  --ds-color-primitive-neutral-500: #64748b;
-  --ds-color-primitive-neutral-600: #475569;
-  --ds-color-primitive-neutral-700: #334155;
-  --ds-color-primitive-neutral-800: #1e293b;
-  --ds-color-primitive-neutral-900: #0f172a;
+  --ds-color-primitive-neutral-300: #cbd5e0;
+  --ds-color-primitive-neutral-400: #a0aec0;
+  --ds-color-primitive-neutral-500: #718096;
+  --ds-color-primitive-neutral-600: #4a5568;
+  --ds-color-primitive-neutral-700: #2d3748;
+  --ds-color-primitive-neutral-800: #1a202c;
+  --ds-color-primitive-neutral-900: #171923;
 
-  --ds-color-primitive-brand-50: #f5f3ff;
-  --ds-color-primitive-brand-100: #ede9fe;
-  --ds-color-primitive-brand-200: #ddd6fe;
-  --ds-color-primitive-brand-300: #c4b5fd;
-  --ds-color-primitive-brand-400: #a78bfa;
-  --ds-color-primitive-brand-500: #8b5cf6;
-  --ds-color-primitive-brand-600: #7c3aed;
-  --ds-color-primitive-brand-700: #6d28d9;
-  --ds-color-primitive-brand-800: #5b21b6;
-  --ds-color-primitive-brand-900: #4c1d95;
+  --ds-color-primitive-brand-50: #faf5ff;
+  --ds-color-primitive-brand-100: #e9d8fd;
+  --ds-color-primitive-brand-200: #d6bcfa;
+  --ds-color-primitive-brand-300: #b794f4;
+  --ds-color-primitive-brand-400: #9f7aea;
+  --ds-color-primitive-brand-500: #805ad5;
+  --ds-color-primitive-brand-600: #6b46c1;
+  --ds-color-primitive-brand-700: #553c9a;
+  --ds-color-primitive-brand-800: #44337a;
+  --ds-color-primitive-brand-900: #322659;
 
-  --ds-color-primitive-success-500: #10b981;
-  --ds-color-primitive-warning-500: #f59e0b;
-  --ds-color-primitive-danger-500: #ef4444;
+  --ds-color-primitive-blue-500: #3182ce;
+
+  --ds-color-primitive-success-500: #38a169;
+  --ds-color-primitive-warning-500: #d69e2e;
+  --ds-color-primitive-danger-500: #e53e3e;
 
   /* Primitive spacing */
   --ds-space-0: 0rem;
@@ -54,7 +56,7 @@
   /* Semantic colors (light) */
   --ds-color-semantic-surface-page: var(--ds-color-primitive-neutral-50);
   --ds-color-semantic-surface-card: var(--ds-color-primitive-neutral-0);
-  --ds-color-semantic-surface-overlay: rgba(15, 23, 42, 0.08);
+  --ds-color-semantic-surface-overlay: rgba(26, 32, 44, 0.08);
   --ds-color-semantic-surface-brand: var(--ds-color-primitive-brand-600);
 
   --ds-color-semantic-text-primary: var(--ds-color-primitive-neutral-900);
@@ -69,6 +71,7 @@
   --ds-color-semantic-status-success: var(--ds-color-primitive-success-500);
   --ds-color-semantic-status-warning: var(--ds-color-primitive-warning-500);
   --ds-color-semantic-status-danger: var(--ds-color-primitive-danger-500);
+  --ds-color-semantic-status-info: var(--ds-color-primitive-blue-500);
 
   /* Semantic spacing */
   --ds-space-page-x: var(--ds-space-6);
@@ -79,15 +82,15 @@
   --ds-space-control-padding-y: var(--ds-space-3);
 
   /* Shadows */
-  --ds-shadow-card: 0 18px 30px -12px rgba(15, 23, 42, 0.12);
-  --ds-shadow-popover: 0 24px 50px -24px rgba(15, 23, 42, 0.18);
+  --ds-shadow-card: 0 18px 30px -12px rgba(26, 32, 44, 0.12);
+  --ds-shadow-popover: 0 24px 50px -24px rgba(26, 32, 44, 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --ds-color-semantic-surface-page: var(--ds-color-primitive-neutral-900);
     --ds-color-semantic-surface-card: var(--ds-color-primitive-neutral-800);
-    --ds-color-semantic-surface-overlay: rgba(15, 23, 42, 0.55);
+    --ds-color-semantic-surface-overlay: rgba(26, 32, 44, 0.55);
     --ds-color-semantic-text-primary: var(--ds-color-primitive-neutral-50);
     --ds-color-semantic-text-secondary: var(--ds-color-primitive-neutral-400);
     --ds-color-semantic-border-subtle: rgba(148, 163, 184, 0.4);
@@ -98,7 +101,7 @@
 [data-theme="dark"] {
   --ds-color-semantic-surface-page: var(--ds-color-primitive-neutral-900);
   --ds-color-semantic-surface-card: var(--ds-color-primitive-neutral-800);
-  --ds-color-semantic-surface-overlay: rgba(15, 23, 42, 0.55);
+  --ds-color-semantic-surface-overlay: rgba(26, 32, 44, 0.55);
   --ds-color-semantic-text-primary: var(--ds-color-primitive-neutral-50);
   --ds-color-semantic-text-secondary: var(--ds-color-primitive-neutral-400);
   --ds-color-semantic-border-subtle: rgba(148, 163, 184, 0.4);
@@ -120,6 +123,7 @@
   --color-status-success: var(--ds-color-semantic-status-success);
   --color-status-warning: var(--ds-color-semantic-status-warning);
   --color-status-danger: var(--ds-color-semantic-status-danger);
+  --color-status-info: var(--ds-color-semantic-status-info);
 
   --spacing-page-x: var(--ds-space-page-x);
   --spacing-page-y: var(--ds-space-page-y);
