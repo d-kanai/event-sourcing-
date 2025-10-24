@@ -15,6 +15,8 @@
     "test:watch": "firebase emulators:exec --only firestore 'jest --watch'",
     "firestore:start": "firebase emulators:start --only firestore",
     "asyncapi:generate": "tsx scripts/generate-asyncapi.ts",
+    "asyncapi:docs": "npx --yes @asyncapi/cli generate fromTemplate asyncapi/user-account.json @asyncapi/html-template -o asyncapi/html --force-write",
+    "asyncapi:preview": "npx --yes http-server asyncapi/html -p 8081",
     "prisma:generate": "npm run prisma:generate:account && npm run prisma:generate:user",
     "prisma:generate:account": "prisma generate --schema=modules/account/infrastructure/prisma/schema.prisma",
     "prisma:generate:user": "prisma generate --schema=modules/user/infrastructure/prisma/schema.prisma",
@@ -44,6 +46,8 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@asyncapi/cli": "^3.5.2",
+    "http-server": "^14.1.1",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.11.5",
     "firebase-tools": "^14.19.1",

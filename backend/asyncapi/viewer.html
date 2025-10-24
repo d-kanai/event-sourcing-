@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>AsyncAPI Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      html, body { margin: 0; height: 100%; }
+      #root { height: 100%; }
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #0f172a;
+      }
+    </style>
+    <script src="https://unpkg.com/@asyncapi/react-component@1.1.1/browser/standalone/index.js" integrity="sha384-d57nwOojeGZMqpPbvUY7EVuU9Yfk4IOUugVaR+jsj46fcgAKu2IaYGnFKPdlGyiE" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="root">
+      <div class="loading">Loading AsyncAPI document...</div>
+    </div>
+    <script>
+      fetch('./user-account.json')
+        .then((response) => {
+          if (!response.ok) throw new Error('Failed to load AsyncAPI document');
+          return response.json();
+        })
+        .then((doc) => {
+          AsyncAPIStandalone.render(
+            {
+              schema: doc,
+              config: {
+                show: {
+                  sidebar: true,
+                  errors: true,
+                },
+                expand: {
+                  messageExamples: true,
+                },
+                sidebar: {
+                  showOperations: true,
+                },
+              },
+            },
+            document.getElementById('root')
+          );
+        })
+        .catch((error) => {
+          document.getElementById('root').innerHTML = '<div class="loading">' + error.message + '</div>';
+          console.error(error);
+        });
+    </script>
+  </body>
+</html>
