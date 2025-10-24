@@ -1,6 +1,6 @@
 import { getFirestore } from '../../shared/infrastructure/event-store/firestore-client';
 import { UserEventType } from '../user/domain/events/user-event-type';
-import { CreateAccountCommand } from './application/commands/create-account-command';
+import { CreateAccountCommand } from './application/admin/create-account-command';
 import { AccountRepository } from './infrastructure/repositories/account-repository';
 import { AccountProjectionRegistry } from './infrastructure/projections/account-projection-registry';
 import { FirestoreEventStore, FirestoreEventStoreAdapter } from '../../shared/infrastructure/event-store';

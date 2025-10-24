@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { serve } from '@hono/node-server';
@@ -21,7 +21,7 @@ const projectionRegistry = new UserProjectionRegistry(prisma, repositoryForProje
 const userRepository = new UserRepository(eventStoreAdapter, projectionRegistry);
 const userReadRepository = new UserReadRepository(prisma);
 
-const app = new Hono<{
+const app = new OpenAPIHono<{
   Variables: {
     userRepository: UserRepository;
     userReadRepository: UserReadRepository;
@@ -42,6 +42,16 @@ app.get('/', (c) => {
 
 app.route('/customer/users', customerRoutes);
 app.route('/admin/users', adminRoutes);
+
+app.doc('/openapi.json', {
+  openapi: '3.1.0',
+  info: {
+    title: 'User Service API',
+    version: '1.0.0',
+  },
+});
+
+app.get('/openapi', (c) => c.redirect('/openapi.json'));
 
 const port = Number(process.env.USER_SERVICE_PORT) || 3001;
 

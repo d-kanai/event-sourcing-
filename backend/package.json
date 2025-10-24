@@ -33,13 +33,14 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@eventstore/db-client": "^6.1.0",
     "@google-cloud/firestore": "^7.11.6",
     "@hono/node-server": "^1.19.5",
-    "@hono/zod-validator": "^0.2.2",
+    "@hono/zod-openapi": "^1.1.4",
     "@prisma/client": "^5.9.1",
     "hono": "^4.0.0",
-    "zod": "^3.22.4"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",

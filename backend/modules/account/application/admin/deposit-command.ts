@@ -8,6 +8,7 @@ export interface DepositInput {
 
 export interface DepositOutput {
   id: string;
+  userId: string;
   balance: number;
   status: string;
   createdAt: string;

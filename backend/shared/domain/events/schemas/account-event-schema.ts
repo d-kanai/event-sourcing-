@@ -5,7 +5,7 @@ export const AccountCreatedDataSchema = z.object({
   accountId: z.string(),
   userId: z.string(),
   initialBalance: z.number().nonnegative(),
-  status: z.enum(['ACTIVE', 'SUSPENDED', 'CLOSED']),
+  status: z.enum(['ACTIVE', 'SUSPENDED', 'CLOSED'] as const),
   createdAt: z.string().datetime(),
 });
 
@@ -26,7 +26,7 @@ const BaseAccountEventSchema = z.object({
   aggregateId: z.string(),
   aggregateType: z.literal('Account'),
   occurredAt: z.string().datetime(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const AccountEventSchema = z.discriminatedUnion('eventType', [
@@ -44,10 +44,11 @@ export const AccountEventSchema = z.discriminatedUnion('eventType', [
   }),
 ]);
 
-export const FirestoreAccountEventSchema = AccountEventSchema.and(
+export const FirestoreAccountEventSchema = z.intersection(
+  AccountEventSchema,
   z.object({
-  processed: z.boolean(),
-  createdAt: z.string().datetime(),
+    processed: z.boolean(),
+    createdAt: z.string().datetime(),
   })
 );
 

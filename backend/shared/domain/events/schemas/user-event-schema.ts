@@ -5,7 +5,7 @@ export const UserCreatedDataSchema = z.object({
   userId: z.string(),
   email: z.string().email(),
   name: z.string().min(1),
-  status: z.enum(['PENDING_VERIFICATION', 'VERIFIED']),
+  status: z.enum(['PENDING_VERIFICATION', 'VERIFIED'] as const),
   createdAt: z.string().datetime(),
 });
 
@@ -19,7 +19,7 @@ const BaseUserEventSchema = z.object({
   aggregateId: z.string(),
   aggregateType: z.literal('User'),
   occurredAt: z.string().datetime(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const UserEventSchema = z.discriminatedUnion('eventType', [
@@ -33,10 +33,11 @@ export const UserEventSchema = z.discriminatedUnion('eventType', [
   }),
 ]);
 
-export const FirestoreUserEventSchema = UserEventSchema.and(
+export const FirestoreUserEventSchema = z.intersection(
+  UserEventSchema,
   z.object({
-  processed: z.boolean(),
-  createdAt: z.string().datetime(),
+    processed: z.boolean(),
+    createdAt: z.string().datetime(),
   })
 );
 

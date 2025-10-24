@@ -8,6 +8,7 @@ export interface WithdrawInput {
 
 export interface WithdrawOutput {
   id: string;
+  userId: string;
   balance: number;
   status: string;
   createdAt: string;

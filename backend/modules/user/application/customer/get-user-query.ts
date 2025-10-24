@@ -4,7 +4,7 @@ export interface GetUserOutput {
   id: string;
   email: string;
   name: string;
-  status: string;
+  status: 'PENDING_VERIFICATION' | 'VERIFIED';
   createdAt: string;
 }
 
@@ -22,7 +22,7 @@ export class GetUserQuery {
       id: user.id,
       email: user.email,
       name: user.name,
-      status: user.status,
+      status: user.status as 'PENDING_VERIFICATION' | 'VERIFIED',
       createdAt: user.createdAt.toISOString(),
     };
   }

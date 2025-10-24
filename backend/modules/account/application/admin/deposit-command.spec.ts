@@ -6,7 +6,7 @@ import {
 } from '../../infrastructure/prisma/test-helper';
 import { DepositCommand } from './deposit-command';
 import { CreateAccountCommand } from './create-account-command';
-import { GetAccountQuery } from '../queries/get-account-query';
+import { GetAccountQuery } from '../customer/get-account-query';
 import { Firestore } from '@google-cloud/firestore';
 import {
   setupFirestoreTest,
