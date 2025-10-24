@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///Users/d.kanai/workspace/code/event-sourcing-/frontend_admin/src/app/providers.tsx"],"sourcesContent":["\"use client\";\n\nimport { ReactNode, useState } from \"react\";\nimport {\n  QueryClient,\n  QueryClientProvider,\n} from \"@tanstack/react-query\";\nimport { ReactQueryDevtools } from \"@tanstack/react-query-devtools\";\n\ntype ProvidersProps = {\n  children: ReactNode;\n};\n\nexport function Providers({ children }: ProvidersProps) {\n  const [queryClient] = useState(\n    () =>\n      new QueryClient({\n        defaultOptions: {\n          queries: {\n            refetchOnWindowFocus: false,\n          },\n        },\n      }),\n  );\n\n  return (\n    <QueryClientProvider client={queryClient}>\n      {children}\n      <ReactQueryDevtools initialIsOpen={false} />\n    </QueryClientProvider>\n  );\n}\n"],"names":[],"mappings":";;;;;AAEA;AACA;AAAA;AAIA;AAPA;;;;;AAaO,SAAS,UAAU,EAAE,QAAQ,EAAkB;IACpD,MAAM,CAAC,YAAY,GAAG,IAAA,iNAAQ,EAC5B,IACE,IAAI,4LAAW,CAAC;YACd,gBAAgB;gBACd,SAAS;oBACP,sBAAsB;gBACxB;YACF;QACF;IAGJ,qBACE,8OAAC,6MAAmB;QAAC,QAAQ;;YAC1B;0BACD,8OAAC,0MAAkB;gBAAC,eAAe;;;;;;;;;;;;AAGzC","debugId":null}}]
-}
