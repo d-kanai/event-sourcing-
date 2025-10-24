@@ -1,0 +1,481 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "User ↔ Account Event Contract",
+    "version": "1.0.0",
+    "description": "Asynchronous contract between the User Service (producer) and Account Service (consumer)."
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "firestore": {
+      "url": "firestore://{projectId}/events",
+      "protocol": "firestore",
+      "description": "Firestore events collection used as an event queue.",
+      "variables": {
+        "projectId": {
+          "description": "Firebase project identifier",
+          "default": "event-sourcing-local"
+        }
+      }
+    }
+  },
+  "channels": {
+    "firestore.events": {
+      "description": "Events persisted by the User Service and consumed by the Account Service via Firestore.",
+      "bindings": {
+        "firestore": {
+          "collection": "events"
+        }
+      },
+      "publish": {
+        "summary": "User Service publishes user aggregate events.",
+        "operationId": "publishUserEvent",
+        "message": {
+          "$ref": "#/components/messages/UserEventMessage"
+        }
+      },
+      "subscribe": {
+        "summary": "Account Service consumes user events to provision bank accounts.",
+        "operationId": "consumeUserEvent",
+        "message": {
+          "$ref": "#/components/messages/UserEventMessage"
+        }
+      }
+    }
+  },
+  "components": {
+    "messages": {
+      "UserEventMessage": {
+        "name": "UserEvent",
+        "title": "User domain event",
+        "summary": "Envelope describing domain events emitted by the User Service.",
+        "payload": {
+          "$ref": "#/components/schemas/UserEvent"
+        }
+      }
+    },
+    "schemas": {
+      "UserEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eventId",
+              "eventType",
+              "aggregateId",
+              "aggregateType",
+              "occurredAt",
+              "data"
+            ],
+            "properties": {
+              "eventId": {
+                "type": "string",
+                "description": "Event identifier (UUID)"
+              },
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "UserCreated"
+                ]
+              },
+              "aggregateId": {
+                "type": "string"
+              },
+              "aggregateType": {
+                "type": "string",
+                "const": "User"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "userId",
+                  "email",
+                  "name",
+                  "status",
+                  "createdAt"
+                ],
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "User identifier"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "PENDING_VERIFICATION",
+                      "VERIFIED"
+                    ]
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eventId",
+              "eventType",
+              "aggregateId",
+              "aggregateType",
+              "occurredAt",
+              "data"
+            ],
+            "properties": {
+              "eventId": {
+                "type": "string",
+                "description": "Event identifier (UUID)"
+              },
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "UserVerified"
+                ]
+              },
+              "aggregateId": {
+                "type": "string"
+              },
+              "aggregateType": {
+                "type": "string",
+                "const": "User"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "userId",
+                  "verifiedAt"
+                ],
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "verifiedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AccountEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eventId",
+              "eventType",
+              "aggregateId",
+              "aggregateType",
+              "occurredAt",
+              "data"
+            ],
+            "properties": {
+              "eventId": {
+                "type": "string",
+                "description": "Event identifier (UUID)"
+              },
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "AccountCreated"
+                ]
+              },
+              "aggregateId": {
+                "type": "string"
+              },
+              "aggregateType": {
+                "type": "string",
+                "const": "Account"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "accountId",
+                  "userId",
+                  "initialBalance",
+                  "status",
+                  "createdAt"
+                ],
+                "properties": {
+                  "accountId": {
+                    "type": "string"
+                  },
+                  "userId": {
+                    "type": "string"
+                  },
+                  "initialBalance": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ACTIVE",
+                      "SUSPENDED",
+                      "CLOSED"
+                    ]
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eventId",
+              "eventType",
+              "aggregateId",
+              "aggregateType",
+              "occurredAt",
+              "data"
+            ],
+            "properties": {
+              "eventId": {
+                "type": "string",
+                "description": "Event identifier (UUID)"
+              },
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "MoneyDeposited"
+                ]
+              },
+              "aggregateId": {
+                "type": "string"
+              },
+              "aggregateType": {
+                "type": "string",
+                "const": "Account"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "accountId",
+                  "amount",
+                  "depositedAt"
+                ],
+                "properties": {
+                  "accountId": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "depositedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eventId",
+              "eventType",
+              "aggregateId",
+              "aggregateType",
+              "occurredAt",
+              "data"
+            ],
+            "properties": {
+              "eventId": {
+                "type": "string",
+                "description": "Event identifier (UUID)"
+              },
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "MoneyWithdrawn"
+                ]
+              },
+              "aggregateId": {
+                "type": "string"
+              },
+              "aggregateType": {
+                "type": "string",
+                "const": "Account"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "accountId",
+                  "amount",
+                  "withdrawnAt"
+                ],
+                "properties": {
+                  "accountId": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "withdrawnAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "UserCreatedData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "userId",
+          "email",
+          "name",
+          "status",
+          "createdAt"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "User identifier"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_VERIFICATION",
+              "VERIFIED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserVerifiedData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "userId",
+          "verifiedAt"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AccountCreatedData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accountId",
+          "userId",
+          "initialBalance",
+          "status",
+          "createdAt"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "initialBalance": {
+            "type": "number",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "CLOSED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
