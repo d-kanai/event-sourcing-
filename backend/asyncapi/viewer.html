@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title>AsyncAPI Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script type="module" src="https://unpkg.com/@asyncapi/web-component@2.6.4/browser/index.js"></script>
     <style>
       html, body {
         margin: 0;
@@ -12,12 +11,40 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background: #f8fafc;
       }
-      asyncapi-component {
+      #root {
         height: 100%;
       }
     </style>
   </head>
   <body>
-    <asyncapi-component schema-url="./user-account.json" show="servers channels operations messages schemas" sidebar-visibility="true"></asyncapi-component>
+    <div id="root">Loading AsyncAPI document…</div>
+    <script type="module">
+      import AsyncApiStandalone from 'https://unpkg.com/@asyncapi/react-component@2.6.4/browser/standalone/index.js?module';
+
+      async function main() {
+        try {
+          const response = await fetch('./user-account.json');
+          if (!response.ok) throw new Error('Failed to load AsyncAPI document');
+          const doc = await response.json();
+
+          AsyncApiStandalone.render(
+            {
+              schema: doc,
+              config: {
+                show: { sidebar: true, errors: true },
+                sidebar: { showOperations: true },
+                expand: { messageExamples: true },
+              },
+            },
+            document.getElementById('root')
+          );
+        } catch (error) {
+          document.getElementById('root').innerText = error.message;
+          console.error(error);
+        }
+      }
+
+      main();
+    </script>
   </body>
 </html>
