@@ -31,9 +31,9 @@ accountRoutes.post(
   zValidator('json', createAccountSchema),
   async (c) => {
     try {
-      const input = c.req.valid('json');
+      const { userId, initialBalance = 0 } = c.req.valid('json');
       const command = new CreateAccountCommand(accountRepository);
-      const result = await command.execute(input);
+      const result = await command.execute({ userId, initialBalance });
       return c.json(result, 201);
     } catch (error) {
       return c.json(

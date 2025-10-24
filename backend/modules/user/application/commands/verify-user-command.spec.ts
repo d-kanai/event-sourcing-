@@ -4,8 +4,8 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { RegisterUserCommand } from './register-user-command';
-import { VerifyUserCommand } from './verify-user-command';
+import { RegisterUserCommand } from '../customer/register-user-command';
+import { VerifyUserCommand } from '../admin/verify-user-command';
 import { UserRepository } from '../../infrastructure/repositories/user-repository';
 import { UserProjectionRegistry } from '../../infrastructure/projections/user-projection-registry';
 import { Firestore } from '@google-cloud/firestore';

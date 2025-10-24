@@ -11,11 +11,11 @@ export interface DomainEvent {
 export abstract class BaseDomainEvent implements DomainEvent {
   public readonly eventId: string;
   public readonly occurredAt: Date;
-  public readonly aggregateType = 'Account';
 
   constructor(
     public readonly eventType: string,
     public readonly aggregateId: string,
+    public readonly aggregateType: string,
     public readonly data: unknown,
     public readonly metadata?: Record<string, unknown>
   ) {

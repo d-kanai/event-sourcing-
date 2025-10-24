@@ -9,6 +9,7 @@ import {
   SnapshotRepository,
 } from '../../../../shared/infrastructure/event-store/base-event-sourced-repository';
 import { getFirestore } from '../../../../shared/infrastructure/event-store/firestore-client';
+import { FirestoreUserEventSchema } from '../../../../shared/domain/events/schemas/user-event-schema';
 
 export class UserRepository extends BaseEventSourcedRepository<
   User,
@@ -31,17 +32,19 @@ export class UserRepository extends BaseEventSourcedRepository<
     await super.save(user);
 
     for (const event of events) {
-      await firestore.collection('events').add({
+      const record = FirestoreUserEventSchema.parse({
         eventId: event.eventId,
         eventType: event.eventType,
         aggregateId: event.aggregateId,
         aggregateType: event.aggregateType,
-        occurredAt: event.occurredAt,
+        occurredAt: event.occurredAt.toISOString(),
         data: event.data,
-        metadata: event.metadata || {},
+        metadata: event.metadata ?? {},
         processed: false,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       });
+
+      await firestore.collection('events').add(record);
     }
   }
 

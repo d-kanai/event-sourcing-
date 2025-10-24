@@ -15,7 +15,7 @@ const USER_SERVICE_URL =
   process.env.NEXT_PUBLIC_USER_SERVICE_URL ?? "http://localhost:3001";
 
 async function registerUser(input: RegistrationInput) {
-  const response = await fetch(`${USER_SERVICE_URL}/users`, {
+  const response = await fetch(`${USER_SERVICE_URL}/customer/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

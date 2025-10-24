@@ -4,8 +4,8 @@ import {
   teardownTestDatabase,
   cleanupTestDatabase,
 } from '../../infrastructure/prisma/test-helper';
-import { GetUserQuery } from './get-user-query';
-import { RegisterUserCommand } from '../commands/register-user-command';
+import { GetUserQuery } from '../customer/get-user-query';
+import { RegisterUserCommand } from '../customer/register-user-command';
 import { Firestore } from '@google-cloud/firestore';
 import {
   setupFirestoreTest,

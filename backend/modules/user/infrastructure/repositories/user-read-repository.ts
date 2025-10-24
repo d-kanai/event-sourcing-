@@ -9,6 +9,12 @@ export class UserReadRepository {
     });
   }
 
+  async findAll() {
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
       where: { email },

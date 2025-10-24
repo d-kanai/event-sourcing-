@@ -1,0 +1,2 @@
+export const USER_SERVICE_URL =
+  process.env.NEXT_PUBLIC_USER_SERVICE_URL ?? "http://localhost:3001";

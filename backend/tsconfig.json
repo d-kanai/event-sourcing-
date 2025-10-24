@@ -17,6 +17,6 @@
     "sourceMap": true,
     "types": ["node", "jest"]
   },
-  "include": ["backend/**/*"],
+  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.mts", "./**/*.cts"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }

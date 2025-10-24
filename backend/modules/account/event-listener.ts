@@ -5,6 +5,7 @@ import { AccountRepository } from './infrastructure/repositories/account-reposit
 import { AccountProjectionRegistry } from './infrastructure/projections/account-projection-registry';
 import { FirestoreEventStore, FirestoreEventStoreAdapter } from '../../shared/infrastructure/event-store';
 import { PrismaClient } from '@prisma/client';
+import { FirestoreUserEventSchema } from '../../shared/domain/events/schemas/user-event-schema';
 
 const firestore = getFirestore();
 const prisma = new PrismaClient();
@@ -29,12 +30,14 @@ const unsubscribe = eventsRef
       snapshot.docChanges().forEach(async (change) => {
         console.log(`Document change type: ${change.type}`);
         if (change.type === 'added') {
-          const event = change.doc.data();
+          const rawEvent = change.doc.data();
           const eventId = change.doc.id;
 
-          console.log(`Received event: ${event.eventType}`, JSON.stringify(event, null, 2));
+          console.log(`Received event: ${rawEvent.eventType}`, JSON.stringify(rawEvent, null, 2));
 
           try {
+            const event = FirestoreUserEventSchema.parse(rawEvent);
+
             if (event.eventType === UserEventType.USER_CREATED) {
               console.log('Detected USER_CREATED event, calling handleUserCreated...');
               await handleUserCreated(event);
@@ -55,7 +58,12 @@ const unsubscribe = eventsRef
     }
   );
 
-async function handleUserCreated(event: any) {
+async function handleUserCreated(
+  event: Extract<
+    import('../../shared/domain/events/schemas/user-event-schema').FirestoreUserEventRecord,
+    { eventType: UserEventType.USER_CREATED }
+  >
+) {
   console.log('Handling UserCreated event:', event.data);
 
   const userId = event.data.userId;

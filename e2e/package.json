@@ -1,0 +1,17 @@
+{
+  "name": "event-sourcing-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "cucumber-js"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.49.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7"
+  }
+}

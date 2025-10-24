@@ -1,7 +1,11 @@
 import { EventStoreDBClient, jsonEvent, StreamNotFoundError } from '@eventstore/db-client';
 import { Snapshot, SnapshotRepository } from '../event-store/base-event-sourced-repository';
 
-export class EventStoreSnapshotRepository<T extends Snapshot> implements SnapshotRepository<T> {
+type SnapshotRecord = Snapshot & Record<string, unknown>;
+
+export class EventStoreSnapshotRepository<T extends SnapshotRecord>
+  implements SnapshotRepository<T>
+{
   constructor(
     private readonly client: EventStoreDBClient,
     private readonly aggregateType: string

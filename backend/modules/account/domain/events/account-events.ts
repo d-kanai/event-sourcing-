@@ -11,7 +11,7 @@ export interface AccountCreatedData {
 
 export class AccountCreatedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: AccountCreatedData) {
-    super(AccountEventType.ACCOUNT_CREATED, accountId, data);
+    super(AccountEventType.ACCOUNT_CREATED, accountId, 'Account', data);
   }
 
   get accountData(): AccountCreatedData {
@@ -27,7 +27,7 @@ export interface MoneyDepositedData {
 
 export class MoneyDepositedEvent extends BaseDomainEvent {
   constructor(accountId: string, data: MoneyDepositedData) {
-    super(AccountEventType.MONEY_DEPOSITED, accountId, data);
+    super(AccountEventType.MONEY_DEPOSITED, accountId, 'Account', data);
   }
 
   get depositData(): MoneyDepositedData {
@@ -43,7 +43,7 @@ export interface MoneyWithdrawnData {
 
 export class MoneyWithdrawnEvent extends BaseDomainEvent {
   constructor(accountId: string, data: MoneyWithdrawnData) {
-    super(AccountEventType.MONEY_WITHDRAWN, accountId, data);
+    super(AccountEventType.MONEY_WITHDRAWN, accountId, 'Account', data);
   }
 
   get withdrawData(): MoneyWithdrawnData {

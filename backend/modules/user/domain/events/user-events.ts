@@ -11,7 +11,7 @@ export interface UserCreatedData {
 
 export class UserCreatedEvent extends BaseDomainEvent {
   constructor(userId: string, data: UserCreatedData) {
-    super(UserEventType.USER_CREATED, userId, data);
+    super(UserEventType.USER_CREATED, userId, 'User', data);
   }
 
   get userData(): UserCreatedData {
@@ -26,7 +26,7 @@ export interface UserVerifiedData {
 
 export class UserVerifiedEvent extends BaseDomainEvent {
   constructor(userId: string, data: UserVerifiedData) {
-    super(UserEventType.USER_VERIFIED, userId, data);
+    super(UserEventType.USER_VERIFIED, userId, 'User', data);
   }
 
   get verifiedData(): UserVerifiedData {
