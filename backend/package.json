@@ -42,7 +42,7 @@
     "@hono/node-server": "^1.19.5",
     "@hono/zod-openapi": "^1.1.4",
     "@prisma/client": "^5.9.1",
-    "hono": "^4.0.0",
+    "hono": "^4.13.18",
     "zod": "^4.1.12"
   },
   "devDependencies": {
